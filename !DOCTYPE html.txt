@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pickleball Vui Nhộn: Hành Trình 10 Màn 20/11 — NPH Đoàn Đức Duy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #091326;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100dvh;
+            width: 100vw;
+        }
+        #game-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 520px;
+            max-height: 920px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85);
+            overflow: hidden;
+            background: #133963;
+        }
+        @media (min-width: 540px) {
+            #game-wrapper {
+                height: 96dvh;
+                border-radius: 28px;
+                border: 4px solid rgba(255, 255, 255, 0.16);
+            }
+        }
+        canvas#gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        .btn-sport {
+            background: linear-gradient(180deg, #ff9f1c 0%, #f97316 100%);
+            box-shadow: 0 5px 0 #c2410c, 0 10px 20px rgba(249, 115, 22, 0.4);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-sport:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #c2410c, 0 4px 10px rgba(249, 115, 22, 0.4);
+        }
+        .btn-emerald {
+            background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+            box-shadow: 0 5px 0 #065f46, 0 10px 20px rgba(16, 185, 129, 0.35);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-emerald:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #065f46;
+        }
+        .btn-blue {
+            background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+            box-shadow: 0 5px 0 #075985, 0 10px 20px rgba(2, 132, 199, 0.35);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-blue:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #075985;
+        }
+        .float-anim {
+            animation: floatSlow 2.6s ease-in-out infinite;
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .card-shimmer {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%);
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 99px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <!-- MÀN HÌNH CHÀO NHÀ PHÁT HÀNH GAME (PUBLISHER SPLASH SCREEN) -->
+    <div id="screen-splash" class="absolute inset-0 z-50 flex flex-col items-center justify-between p-6 bg-gradient-to-b from-slate-950 via-sky-950 to-slate-950 text-white text-center">
+        <div class="pt-4">
+            <span class="px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/40 text-amber-300 text-[11px] font-extrabold uppercase tracking-widest">
+                Phiên Bản Đặc Biệt 20/11
+            </span>
+        </div>
+
+        <div class="space-y-4 my-auto flex flex-col items-center">
+            <div class="w-24 h-24 rounded-3xl bg-gradient-to-tr from-orange-500 via-amber-400 to-lime-300 p-1 shadow-2xl float-anim">
+                <div class="w-full h-full rounded-[20px] bg-slate-950 flex items-center justify-center text-5xl">
+                    🎾
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <p class="text-xs font-bold uppercase tracking-[0.25em] text-sky-300">
+                    Nhà Phát Hành Game
+                </p>
+                <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-orange-400 drop-shadow">
+                    ĐOÀN ĐỨC DUY
+                </h1>
+                <p class="text-xs font-semibold text-emerald-300 pt-1">
+                    Trân trọng giới thiệu tựa game thể thao tri ân Ngày Nhà Giáo Việt Nam
+                </p>
+            </div>
+
+            <!-- Thanh tải mượt mà -->
+            <div class="w-56 h-2 bg-white/10 rounded-full overflow-hidden border border-white/10 mt-2">
+                <div id="splash-progress" class="h-full bg-gradient-to-r from-lime-400 via-amber-400 to-orange-500 transition-all duration-100" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="pb-4 space-y-2 w-full max-w-xs">
+            <button id="btn-enter-game" type="button" class="btn-sport w-full py-3 rounded-2xl text-white font-black text-sm uppercase tracking-wider cursor-pointer">
+                VÀO SÂN ĐẤU NGAY 🚀
+            </button>
+            <p class="text-[10px] text-slate-400 font-medium">
+                © 2026 Đoàn Đức Duy Studio • Pickleball 20/11 Edition
+            </p>
+        </div>
+    </div>
+
+    <!-- HUD Thanh trạng thái 2 tầng phía trên khi đang chơi -->
+    <div id="hud-bar" class="hidden absolute top-0 left-0 right-0 z-20 p-2.5 flex flex-col gap-1.5 pointer-events-none">
+        <div class="flex items-center justify-between">
+            <!-- Nhãn Màn chơi & Nhịp bóng -->
+            <div class="flex items-center gap-1.5 bg-slate-950/75 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 shadow">
+                <span id="hud-level-badge" class="text-[11px] font-black text-amber-300 uppercase">Màn 1/10</span>
+                <span class="text-white/30">|</span>
+                <span id="hud-tempo-badge" class="text-[11px] font-bold text-lime-300">1.0x</span>
+                <span class="text-white/30">|</span>
+                <span id="hud-timer" class="text-[11px] font-bold text-sky-200 tabular-nums">⏱️ 00:00</span>
+            </div>
+
+            <!-- Nút điều khiển nhanh -->
+            <div class="flex items-center gap-1.5 pointer-events-auto">
+                <button id="btn-quick-skip" type="button" title="Qua nhanh màn này để xem thử" class="px-2 py-1 rounded-full bg-emerald-500/80 hover:bg-emerald-500 text-white text-[10px] font-extrabold border border-white/25 shadow cursor-pointer">
+                    ⏭️ Qua nhanh
+                </button>
+                <button id="btn-pause-open" type="button" aria-label="Tạm dừng & Đổi màu bóng" class="w-8 h-8 rounded-full bg-slate-950/75 hover:bg-slate-900 text-white flex items-center justify-center border border-white/20 backdrop-blur-md shadow cursor-pointer text-xs font-bold">
+                    ⏸️
+                </button>
+                <button id="btn-sound" type="button" aria-label="Bật tắt âm thanh" class="w-8 h-8 rounded-full bg-slate-950/75 hover:bg-slate-900 text-white flex items-center justify-center border border-white/20 backdrop-blur-md shadow cursor-pointer">
+                    <svg id="icon-sound-on" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/>
+                    </svg>
+                    <svg id="icon-sound-off" class="w-4 h-4 hidden text-rose-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tầng 2: Điểm màn hiện tại & Combo -->
+        <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 bg-slate-950/75 backdrop-blur-md px-3 py-1 rounded-full border border-white/15 shadow">
+                <span id="hud-ball-dot" class="w-3 h-3 rounded-full border border-white/60 inline-block" style="background:#ccff00"></span>
+                <span id="hud-score" class="text-white font-black text-sm tabular-nums">0</span>
+                <span class="text-sky-300 text-xs font-bold">/ <span id="hud-target">3600</span>đ</span>
+            </div>
+
+            <div id="hud-combo-badge" class="opacity-0 transition-opacity duration-200 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-black text-[11px] px-2.5 py-1 rounded-full shadow">
+                🔥 x1
+            </div>
+        </div>
+    </div>
+
+    <!-- Thanh tiến trình mở quà ngay dưới HUD -->
+    <div id="progress-container" class="hidden absolute top-[72px] left-3 right-3 z-20 pointer-events-none">
+        <div class="w-full h-2.5 bg-slate-950/65 rounded-full p-0.5 border border-white/20 backdrop-blur-sm">
+            <div id="progress-fill" class="h-full rounded-full bg-gradient-to-r from-lime-400 via-amber-400 to-rose-500 transition-all duration-150" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Canvas sân đấu Pickleball -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Gợi ý nhỏ phía dưới màn hình lúc chơi -->
+    <div id="bottom-hint" class="hidden absolute bottom-2 left-0 right-0 z-10 text-center pointer-events-none">
+        <span id="bottom-hint-text" class="bg-slate-950/65 text-sky-100 text-[11px] font-medium px-3 py-1 rounded-full backdrop-blur-sm border border-white/10">
+            👆 Vuốt ngang hoặc di chuột để đỡ bóng • Dự kiến 3–5 phút/màn
+        </span>
+    </div>
+
+    <!-- MÀN HÌNH BẮT ĐẦU (CHỌN MÀU BÓNG + CHỌN 10 MÀN CHƠI + BẢNG XẾP HẠNG) -->
+    <div id="screen-start" class="absolute inset-0 z-30 flex flex-col justify-between p-3.5 sm:p-4 bg-gradient-to-b from-slate-950/90 via-sky-950/92 to-slate-950/95 backdrop-blur-md text-white overflow-y-auto">
+        <!-- Dòng trên cùng -->
+        <div class="flex justify-between items-center shrink-0">
+            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-[10px] font-extrabold">
+                🎮 NPH: Đoàn Đức Duy
+            </span>
+            <div class="flex items-center gap-1">
+                <button id="btn-open-leaderboard" type="button" class="px-2 py-1 rounded-full bg-amber-400/25 hover:bg-amber-400/40 border border-amber-300/50 text-amber-200 text-[11px] font-extrabold cursor-pointer">
+                    🏆 BXH
+                </button>
+                <button id="btn-open-full-card-start" type="button" class="px-2 py-1 rounded-full bg-rose-500/25 hover:bg-rose-500/40 border border-rose-300/40 text-rose-200 text-[11px] font-bold cursor-pointer">
+                    💌 Thiệp
+                </button>
+                <button id="btn-sound-start" type="button" class="px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer">
+                    <span id="start-sound-icon">🔊</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tiêu đề game -->
+        <div class="text-center my-1 shrink-0">
+            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-lime-300 to-amber-300 leading-tight">
+                PICKLEBALL VUI NHỘN
+            </h1>
+            <p class="text-[11px] sm:text-xs font-extrabold text-orange-300 tracking-wider uppercase">
+                Hành Trình 10 Vòng Đấu Tri Ân 20/11 🎾
+            </p>
+        </div>
+
+        <!-- Form cá nhân hóa món quà & Tên người chơi BXH -->
+        <div class="bg-white/10 border border-white/15 rounded-2xl p-2.5 backdrop-blur-md shrink-0 space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[10px] font-semibold text-lime-300 mb-0.5">Tên Người Chơi (BXH):</label>
+                    <input id="input-player-name" type="text" placeholder="Nhập tên bạn..." value="Tay Vợt Tri Ân" maxlength="24"
+                        class="w-full px-2.5 py-1 rounded-xl bg-slate-900/85 border border-lime-400/45 focus:border-amber-400 focus:outline-none text-white font-bold text-xs">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-sky-200 mb-0.5">Kính tặng Thầy:</label>
+                    <input id="input-teacher-name" type="text" value="Thầy Giáo Kính Yêu" maxlength="36"
+                        class="w-full px-2.5 py-1 rounded-xl bg-slate-900/80 border border-sky-400/40 focus:border-amber-400 focus:outline-none text-white font-bold text-xs">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-semibold text-sky-200 mb-0.5">Người tặng / Tập thể trên thiệp:</label>
+                <input id="input-sender-name" type="text" value="Đoàn Đức Duy & Tập thể Sinh viên" maxlength="42"
+                    class="w-full px-2.5 py-1 rounded-xl bg-slate-900/80 border border-sky-400/40 focus:border-amber-400 focus:outline-none text-white font-bold text-xs">
+            </div>
+        </div>
+
+        <!-- BỘ CHỌN MÀU BÓNG PICKLEBALL (BALL CUSTOMIZER) -->
+        <div class="bg-white/10 border border-white/15 rounded-2xl p-2.5 backdrop-blur-md my-1.5 shrink-0">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-extrabold text-amber-300 uppercase tracking-wide">🎨 Chọn Màu Bóng Thi Đấu</span>
+                <span id="selected-ball-label" class="text-[11px] font-bold text-lime-300">Vàng Chanh Chuẩn</span>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+                <div id="ball-color-swatches" class="flex items-center gap-1.5 flex-wrap"></div>
+                <div class="shrink-0 flex flex-col items-center">
+                    <canvas id="ballPreviewCanvas" width="54" height="54" class="rounded-xl bg-slate-900/80 border border-white/15"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- LỘ TRÌNH 10 MÀN CHƠI (NHỊP CHẬM -> NHANH, 3-5 PHÚT/MÀN) -->
+        <div class="bg-white/10 border border-white/15 rounded-2xl p-2.5 backdrop-blur-md shrink-0">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-extrabold text-sky-200 uppercase tracking-wide">🗺️ Lộ Trình 10 Vòng Đấu</span>
+                <span id="completed-count-label" class="text-[11px] font-bold text-emerald-300">Đã mở: 0/10</span>
+            </div>
+            <div id="stage-grid" class="grid grid-cols-5 gap-1.5"></div>
+            <div id="selected-level-detail" class="mt-2 p-2 rounded-xl bg-slate-900/75 border border-white/10 flex items-center justify-between text-[11px]">
+                <div>
+                    <div id="detail-level-title" class="font-extrabold text-amber-300">Màn 1: Khởi Động Sân Sáng</div>
+                    <div id="detail-level-meta" class="text-sky-200 text-[10px]">Nhịp bóng: 1.0x (Chậm) • Mục tiêu: 3.600đ (~3.5 phút)</div>
+                </div>
+                <span id="detail-level-emoji" class="text-xl">😊</span>
+            </div>
+        </div>
+
+        <!-- Nút Bắt đầu -->
+        <div class="pt-2 shrink-0">
+            <button id="btn-start-game" type="button" class="btn-sport w-full py-3 rounded-2xl text-white font-black text-sm sm:text-base uppercase tracking-wider cursor-pointer">
+                CHƠI MÀN 1 NGAY 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH TẠM DỪNG & ĐỔI MÀU BÓNG TRONG TRẬN -->
+    <div id="screen-pause" class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center p-5 bg-slate-950/80 backdrop-blur-md text-white">
+        <div class="w-full max-w-xs bg-slate-900 border-2 border-amber-400/70 rounded-3xl p-5 shadow-2xl space-y-4 text-center">
+            <h3 class="text-xl font-black text-amber-300 uppercase">⏸️ Tạm Dừng Trận Đấu</h3>
+            <p id="pause-level-info" class="text-xs text-sky-200 font-semibold">Màn 1 • Đã chơi 01:20</p>
+
+            <div class="bg-white/5 rounded-2xl p-3 border border-white/10 text-left">
+                <div class="text-[11px] font-bold text-amber-200 mb-2">🎨 Đổi nhanh màu bóng:</div>
+                <div id="pause-ball-swatches" class="flex items-center justify-between gap-1.5"></div>
+            </div>
+
+            <div class="space-y-2 pt-1">
+                <button id="btn-resume-game" type="button" class="btn-emerald w-full py-3 rounded-2xl text-white font-black text-sm uppercase cursor-pointer">
+                    ▶️ TIẾP TỤC CHƠI
+                </button>
+                <button id="btn-pause-to-menu" type="button" class="w-full py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-sky-200 font-bold text-xs cursor-pointer">
+                    🗺️ Về Bảng Chọn 10 Màn
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH QUA MÀN (LEVEL CLEAR & MỞ MẢNH GHÉP LỜI CHÚC) -->
+    <div id="screen-level-clear" class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md">
+        <div class="w-full max-w-sm bg-gradient-to-b from-sky-900 to-slate-900 border-2 border-amber-400 rounded-3xl p-4 sm:p-5 text-white shadow-2xl space-y-3 text-center">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
+                🎉 Hoàn Thành Vòng <span id="clear-level-num">1</span>/10!
+            </div>
+
+            <h2 id="clear-level-title" class="text-lg sm:text-xl font-black text-amber-300">
+                Xuất Sắc Vượt Qua Màn 1!
+            </h2>
+
+            <!-- Thống kê màn vừa chơi -->
+            <div class="grid grid-cols-2 gap-2 bg-white/10 rounded-2xl p-2.5 border border-white/15">
+                <div>
+                    <div class="text-[10px] text-sky-200 uppercase font-bold">Điểm Vòng Này</div>
+                    <div id="clear-stage-score" class="text-base font-black text-lime-300">3.600</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-sky-200 uppercase font-bold">Thời Gian Hoàn Thành</div>
+                    <div id="clear-stage-time" class="text-base font-black text-amber-300">03:45</div>
+                </div>
+            </div>
+
+            <!-- Mảnh ghép lời chúc 20/11 vừa mở khóa -->
+            <div class="card-shimmer text-slate-900 rounded-2xl p-3.5 border-2 border-amber-400 shadow-lg text-left relative">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-orange-700">
+                        💌 Mảnh Ghép Tri Ân #<span id="clear-piece-num">1</span>/10
+                    </span>
+                    <span class="text-base">💐</span>
+                </div>
+                <p id="clear-unlocked-wish" class="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed italic">
+                    "Chúc Thầy luôn dồi dào sức khỏe, giữ mãi ngọn lửa đam mê trên từng đường bóng!"
+                </p>
+            </div>
+
+            <!-- Nút hành động qua màn -->
+            <div class="pt-1 space-y-1.5">
+                <button id="btn-next-level" type="button" class="btn-emerald w-full py-3 rounded-2xl text-white font-black text-xs sm:text-sm uppercase tracking-wide cursor-pointer">
+                    TIẾP TỤC MÀN 2 ➡️
+                </button>
+                <div class="grid grid-cols-3 gap-1.5">
+                    <button id="btn-replay-level" type="button" class="py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sky-200 font-bold text-[11px] cursor-pointer transition">
+                        🔄 Chơi lại
+                    </button>
+                    <button id="btn-clear-leaderboard" type="button" class="py-2 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 border border-amber-300/40 text-amber-200 font-bold text-[11px] cursor-pointer transition">
+                        🏆 Bảng Hạng
+                    </button>
+                    <button id="btn-clear-home" type="button" class="py-2 rounded-xl bg-white/10 hover:bg-white/20 text-emerald-200 font-bold text-[11px] cursor-pointer transition">
+                        🗺️ 10 Màn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH BẢNG XẾP HẠNG NGƯỜI CHƠI (LEADERBOARD MODAL) -->
+    <div id="screen-leaderboard" class="hidden absolute inset-0 z-45 flex flex-col items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+        <div class="w-full max-w-sm bg-gradient-to-b from-sky-900 to-slate-900 border-2 border-amber-400 rounded-3xl p-4 text-white shadow-2xl flex flex-col max-h-[85dvh]">
+            <div class="flex items-center justify-between border-b border-white/15 pb-2.5 shrink-0">
+                <div>
+                    <h3 class="text-lg font-black text-amber-300 uppercase flex items-center gap-1.5">
+                        🏆 Bảng Xếp Hạng Sân Đấu
+                    </h3>
+                    <p class="text-[10px] text-sky-200 font-medium">
+                        Vinh danh các tay vợt tri ân Thầy 20/11 • NPH Đoàn Đức Duy
+                    </p>
+                </div>
+                <button id="btn-close-leaderboard" type="button" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-sm cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Thành tích của bạn hiện tại -->
+            <div class="my-2.5 p-2.5 rounded-2xl bg-amber-400/15 border border-amber-300/40 flex items-center justify-between shrink-0">
+                <div>
+                    <div class="text-[10px] font-bold uppercase text-amber-300">Thành tích của bạn</div>
+                    <div id="lb-my-name" class="text-sm font-black text-white">Tay Vợt Tri Ân</div>
+                </div>
+                <div class="text-right">
+                    <div id="lb-my-score" class="text-sm font-black text-lime-300">0 điểm</div>
+                    <div id="lb-my-stage" class="text-[10px] font-bold text-sky-200">Màn cao nhất: 0/10</div>
+                </div>
+            </div>
+
+            <!-- Danh sách Top người chơi -->
+            <div id="leaderboard-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1 min-h-[180px]">
+                <div class="text-center text-xs text-sky-200 py-8">Đang tải bảng xếp hạng...</div>
+            </div>
+
+            <div class="pt-3 mt-2 border-t border-white/10 shrink-0">
+                <button id="btn-lb-back" type="button" class="btn-sport w-full py-2.5 rounded-2xl text-white font-black text-xs uppercase tracking-wider cursor-pointer">
+                    QUAY LẠI SÂN ĐẤU 🎾
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH CHIẾN THẮNG CHUNG CUỘC & THIỆP 20/11 TỔNG HỢP 10 MẢNH GHÉP -->
+    <div id="screen-victory" class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+        <div class="w-full max-w-sm card-shimmer rounded-3xl p-4 sm:p-5 text-slate-800 shadow-2xl border-4 border-amber-400 relative my-auto">
+            <div class="text-center mb-2">
+                <div class="text-3xl mb-0.5">🏆💐🎓</div>
+                <span class="inline-block px-3 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-extrabold uppercase tracking-widest">
+                    Chúc Mừng Ngày Nhà Giáo Việt Nam 20/11
+                </span>
+                <h2 class="text-lg font-black text-slate-900 mt-1">
+                    Kính Tặng <span id="card-teacher-name" class="text-rose-600 underline decoration-amber-400">Thầy Giáo Kính Yêu</span>
+                </h2>
+                <p class="text-[11px] font-bold text-amber-800">
+                    Tổng điểm 10 vòng: <span id="card-total-score">0</span> điểm
+                </p>
+            </div>
+
+            <!-- Danh sách 10 lời chúc tri ân -->
+            <div class="bg-white/90 rounded-2xl p-3 border border-amber-300/80 shadow-inner mb-2.5 max-h-48 overflow-y-auto space-y-1.5 text-[11px] sm:text-xs leading-snug text-slate-700 font-medium">
+                <p><strong class="text-orange-600">1.</strong> Chúc Thầy luôn dồi dào sức khỏe, giữ mãi ngọn lửa đam mê trên từng đường bóng!</p>
+                <p><strong class="text-emerald-600">2.</strong> Cảm ơn Thầy đã tận tâm truyền dạy từng kỹ thuật Dink, Volley và tinh thần Fair-play!</p>
+                <p><strong class="text-sky-600">3.</strong> Chúc những cú Smash của Thầy luôn uy lực và mỗi giờ lên lớp đều ngập tràn tiếng cười!</p>
+                <p><strong class="text-rose-600">4.</strong> Kính chúc Thầy một ngày 20/11 thật nhiều niềm vui, hạnh phúc và gặt hái nhiều thành công mới!</p>
+                <p><strong class="text-purple-600">5.</strong> Chúc Thầy luôn vững tay chèo, dìu dắt thêm nhiều thế hệ học trò yêu thể thao và sống tích cực!</p>
+                <p><strong class="text-amber-600">6.</strong> Cảm ơn Thầy vì sự kiên nhẫn chỉnh từng dáng đứng, từng góc vợt cho chúng em tiến bộ mỗi ngày!</p>
+                <p><strong class="text-teal-600">7.</strong> Chúc Thầy luôn phong độ đỉnh cao, dẻo dai bền bỉ trên mọi sân đấu Pickleball!</p>
+                <p><strong class="text-indigo-600">8.</strong> Mỗi giọt mồ hôi trên sân tập đều là kỷ niệm đẹp dưới sự hướng dẫn tận tình của Thầy!</p>
+                <p><strong class="text-pink-600">9.</strong> Chúc gia đình Thầy luôn bình an, vạn sự như ý và tràn ngập niềm tự hào!</p>
+                <p><strong class="text-red-600">10.</strong> Tri ân Người Thầy Truyền Lửa — Mãi yêu quý và kính trọng Thầy!</p>
+            </div>
+
+            <div class="text-right font-extrabold text-xs text-amber-900 mb-3">
+                — <span id="card-sender-name">Đoàn Đức Duy & Tập thể Sinh viên</span> ❤️
+            </div>
+
+            <div id="snapshot-toast" class="hidden mb-2.5 text-center bg-emerald-600 text-white text-[11px] font-bold py-1.5 px-3 rounded-xl">
+                ✅ Đã tải ảnh Thiệp Chúc Mừng 20/11 về máy!
+            </div>
+
+            <!-- Các nút thao tác cuối game -->
+            <div class="grid grid-cols-3 gap-1.5">
+                <button id="btn-save-photo" type="button" class="btn-blue py-2.5 px-1.5 rounded-xl text-white font-extrabold text-[11px] cursor-pointer flex items-center justify-center gap-1">
+                    📸 Tải Thiệp
+                </button>
+                <button id="btn-victory-leaderboard" type="button" class="btn-emerald py-2.5 px-1.5 rounded-xl text-white font-extrabold text-[11px] cursor-pointer flex items-center justify-center gap-1">
+                    🏆 Bảng Hạng
+                </button>
+                <button id="btn-replay-all" type="button" class="btn-sport py-2.5 px-1.5 rounded-xl text-white font-black text-[11px] cursor-pointer flex items-center justify-center gap-1">
+                    🗺️ 10 Màn
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+/**
+ * ============================================================================
+ * PICKLEBALL VUI NHỘN: HÀNH TRÌNH 10 MÀN 20/11
+ * - Nhà Phát Hành Game: Đoàn Đức Duy
+ * - Bảng Xếp Hạng Người Chơi Trực Tuyến (Cloud Leaderboard)
+ * - Bộ chọn 6 màu bóng Pickleball + Live Preview + Vệt sáng đồng bộ màu
+ * - 10 Màn chơi nhịp bóng tăng tiến từ 1.0x đến 2.35x (3-5 phút/màn)
+ * ============================================================================
+ */
+
+// --- 0. KHỞI TẠO KẾT NỐI BẢNG XẾP HẠNG TRỰC TUYẾN ---
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'pickleball-20-11-doan-duc-duy';
+let db = null;
+let auth = null;
+let currentUser = null;
+let leaderboardEntries = [];
+let playerBestTotalScore = 0;
+let playerHighestLevel = 0;
+let levelScoresMap = {};
+
+async function initCloudLeaderboard() {
+    try {
+        if (typeof __firebase_config === 'undefined') return;
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+            await signInAnonymously(auth);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                subscribeLeaderboard();
+            }
+        });
+    } catch (err) {
+        // Fallback chế độ nội bộ nếu không có cấu hình cloud
+    }
+}
+
+function subscribeLeaderboard() {
+    if (!db || !currentUser) return;
+    const lbCol = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+    onSnapshot(lbCol, (snapshot) => {
+        const list = [];
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data && typeof data.totalScore === 'number') {
+                list.push({ id: docSnap.id, ...data });
+            }
+        });
+        list.sort((a, b) => (b.totalScore - a.totalScore) || (b.highestLevel - a.highestLevel));
+        leaderboardEntries = list;
+        renderLeaderboardUI();
+    }, () => {});
+}
+
+async function syncMyScoreToLeaderboard(completedLevelId, stageScore) {
+    const prevBestForStage = levelScoresMap[completedLevelId] || 0;
+    if (stageScore > prevBestForStage) {
+        levelScoresMap[completedLevelId] = stageScore;
+    }
+    playerBestTotalScore = Object.values(levelScoresMap).reduce((sum, v) => sum + v, 0);
+    if (completedLevelId > playerHighestLevel) {
+        playerHighestLevel = completedLevelId;
+    }
+
+    const pNameInput = document.getElementById('input-player-name');
+    const pName = (pNameInput && pNameInput.value.trim()) ? pNameInput.value.trim() : 'Tay Vợt Tri Ân';
+    const ballCfg = getSelectedBallColor();
+
+    updateMyLeaderboardHeader(pName);
+
+    if (!db || !currentUser) {
+        const existingIdx = leaderboardEntries.findIndex(e => e.id === 'local-me');
+        const entry = {
+            id: 'local-me',
+            playerName: pName,
+            totalScore: playerBestTotalScore,
+            highestLevel: playerHighestLevel,
+            ballColor: ballCfg.fill,
+            updatedAt: Date.now()
+        };
+        if (existingIdx >= 0) leaderboardEntries[existingIdx] = entry;
+        else leaderboardEntries.push(entry);
+        leaderboardEntries.sort((a, b) => (b.totalScore - a.totalScore) || (b.highestLevel - a.highestLevel));
+        renderLeaderboardUI();
+        return;
+    }
+
+    try {
+        const myDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
+        await setDoc(myDocRef, {
+            playerName: pName,
+            totalScore: playerBestTotalScore,
+            highestLevel: playerHighestLevel,
+            ballColor: ballCfg.fill,
+            updatedAt: Date.now()
+        }, { merge: true });
+    } catch (e) {}
+}
+
+function updateMyLeaderboardHeader(pName) {
+    document.getElementById('lb-my-name').textContent = pName;
+    document.getElementById('lb-my-score').textContent = `${playerBestTotalScore.toLocaleString('vi-VN')} điểm`;
+    document.getElementById('lb-my-stage').textContent = `Màn cao nhất: ${playerHighestLevel}/10`;
+}
+
+function renderLeaderboardUI() {
+    const container = document.getElementById('leaderboard-list');
+    if (!container) return;
+
+    const pNameInput = document.getElementById('input-player-name');
+    const currentName = (pNameInput && pNameInput.value.trim()) ? pNameInput.value.trim() : 'Tay Vợt Tri Ân';
+    updateMyLeaderboardHeader(currentName);
+
+    const samplePlayers = [
+        { id: 'nph-duy', playerName: 'Đoàn Đức Duy (NPH)', totalScore: 61700, highestLevel: 10, ballColor: '#ccff00', isPublisher: true },
+        { id: 'sample-1', playerName: 'Thầy Giáo Pickleball', totalScore: 53100, highestLevel: 9, ballColor: '#ff7b00' },
+        { id: 'sample-2', playerName: 'Minh Anh - K65', totalScore: 36500, highestLevel: 7, ballColor: '#00e5ff' }
+    ];
+
+    const combined = [...leaderboardEntries];
+    samplePlayers.forEach(sp => {
+        if (!combined.some(item => item.id === sp.id)) {
+            combined.push(sp);
+        }
+    });
+    combined.sort((a, b) => (b.totalScore - a.totalScore) || (b.highestLevel - a.highestLevel));
+
+    container.innerHTML = '';
+    combined.slice(0, 30).forEach((entry, index) => {
+        const rank = index + 1;
+        const isMe = (currentUser && entry.id === currentUser.uid) || entry.id === 'local-me';
+        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-2.5 rounded-2xl border ${
+            isMe
+                ? 'bg-emerald-500/25 border-emerald-400 shadow'
+                : rank <= 3
+                    ? 'bg-white/10 border-amber-300/35'
+                    : 'bg-white/5 border-white/10'
+        }`;
+
+        row.innerHTML = `
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 rounded-xl bg-slate-900/90 flex items-center justify-center font-black text-xs shrink-0 ${
+                    rank === 1 ? 'text-amber-300 text-base' : rank <= 3 ? 'text-amber-200 text-sm' : 'text-sky-200'
+                }">
+                    ${medal}
+                </div>
+                <span class="w-3 h-3 rounded-full shrink-0 border border-white/60" style="background:${entry.ballColor || '#ccff00'}"></span>
+                <div class="min-w-0">
+                    <div class="text-xs font-extrabold text-white truncate">
+                        ${entry.playerName} ${isMe ? '<span class="text-[10px] text-emerald-300">(Bạn)</span>' : ''}
+                    </div>
+                    <div class="text-[10px] text-sky-200 font-semibold">
+                        Đã chinh phục: Màn ${entry.highestLevel || 0}/10
+                    </div>
+                </div>
+            </div>
+            <div class="text-right shrink-0 ml-2">
+                <div class="text-xs font-black text-amber-300">${(entry.totalScore || 0).toLocaleString('vi-VN')}đ</div>
+            </div>
+        `;
+        container.appendChild(row);
+    });
+}
+
+// --- 1. BẢNG 6 MÀU BÓNG PICKLEBALL (BALL CUSTOMIZER DATA) ---
+const BALL_COLORS = [
+    {
+        id: 'volt',
+        name: 'Vàng Chanh Chuẩn',
+        fill: '#ccff00',
+        stroke: '#65a30d',
+        hole: '#365314',
+        trail: 'rgba(204, 255, 0, 0.34)',
+        glow: 'rgba(204, 255, 0, 0.7)'
+    },
+    {
+        id: 'orange',
+        name: 'Cam Rực Rỡ',
+        fill: '#ff7b00',
+        stroke: '#c2410c',
+        hole: '#7c2d12',
+        trail: 'rgba(255, 123, 0, 0.34)',
+        glow: 'rgba(255, 123, 0, 0.7)'
+    },
+    {
+        id: 'pink',
+        name: 'Hồng Neon',
+        fill: '#ff3b9a',
+        stroke: '#be185d',
+        hole: '#831843',
+        trail: 'rgba(255, 59, 154, 0.34)',
+        glow: 'rgba(255, 59, 154, 0.7)'
+    },
+    {
+        id: 'cyan',
+        name: 'Xanh Ngọc Bích',
+        fill: '#00e5ff',
+        stroke: '#0369a1',
+        hole: '#0c4a6e',
+        trail: 'rgba(0, 229, 255, 0.34)',
+        glow: 'rgba(0, 229, 255, 0.7)'
+    },
+    {
+        id: 'purple',
+        name: 'Tím Hoàng Gia',
+        fill: '#c084fc',
+        stroke: '#7e22ce',
+        hole: '#4c1d95',
+        trail: 'rgba(192, 132, 252, 0.34)',
+        glow: 'rgba(192, 132, 252, 0.7)'
+    },
+    {
+        id: 'white',
+        name: 'Trắng Ngọc Trai',
+        fill: '#f8fafc',
+        stroke: '#94a3b8',
+        hole: '#475569',
+        trail: 'rgba(248, 250, 252, 0.36)',
+        glow: 'rgba(248, 250, 252, 0.75)'
+    }
+];
+
+let selectedBallColorId = 'volt';
+function getSelectedBallColor() {
+    return BALL_COLORS.find(c => c.id === selectedBallColorId) || BALL_COLORS[0];
+}
+
+// --- 2. CẤU HÌNH 10 MÀN CHƠI (TỪ NHỊP CHẬM 1.0x ĐẾN NHANH 2.35x, 3-5 PHÚT/MÀN) ---
+const LEVELS = [
+    {
+        id: 1,
+        name: "Khởi Động Sân Sáng",
+        tempoLabel: "1.0x (Chậm)",
+        estTime: "~3.5 phút",
+        targetScore: 3600,
+        speedMult: 1.00,
+        curveFactor: 0.04,
+        spawnInterval: 1.45,
+        bananaChance: 0.08,
+        enemyEmoji: "😊",
+        courtOuter: "#173c68",
+        courtInner: "#2563eb",
+        kitchenColor: "#0284c7",
+        wish: "Chúc Thầy luôn dồi dào sức khỏe, giữ mãi ngọn lửa đam mê trên từng đường bóng!"
+    },
+    {
+        id: 2,
+        name: "Làm Quen Nhịp Vợt",
+        tempoLabel: "1.12x (Êm ái)",
+        estTime: "~3.5 phút",
+        targetScore: 4100,
+        speedMult: 1.12,
+        curveFactor: 0.08,
+        spawnInterval: 1.38,
+        bananaChance: 0.10,
+        enemyEmoji: "😄",
+        courtOuter: "#14496e",
+        courtInner: "#1d4ed8",
+        kitchenColor: "#0369a1",
+        wish: "Cảm ơn Thầy đã tận tâm truyền dạy từng kỹ thuật Dink, Volley và tinh thần Fair-play!"
+    },
+    {
+        id: 3,
+        name: "Kỹ Thuật Khu Bếp",
+        tempoLabel: "1.25x (Nhịp đều)",
+        estTime: "~4.0 phút",
+        targetScore: 4700,
+        speedMult: 1.25,
+        curveFactor: 0.13,
+        spawnInterval: 1.32,
+        bananaChance: 0.12,
+        enemyEmoji: "😎",
+        courtOuter: "#0f4c5c",
+        courtInner: "#0d9488",
+        kitchenColor: "#059669",
+        wish: "Chúc những cú Smash của Thầy luôn uy lực và mỗi giờ lên lớp đều ngập tràn tiếng cười!"
+    },
+    {
+        id: 4,
+        name: "Vũ Điệu Cổ Tay",
+        tempoLabel: "1.38x (Linh hoạt)",
+        estTime: "~4.0 phút",
+        targetScore: 5200,
+        speedMult: 1.38,
+        curveFactor: 0.17,
+        spawnInterval: 1.25,
+        bananaChance: 0.14,
+        enemyEmoji: "🤠",
+        courtOuter: "#115e59",
+        courtInner: "#047857",
+        kitchenColor: "#10b981",
+        wish: "Kính chúc Thầy một ngày 20/11 thật nhiều niềm vui, hạnh phúc và gặt hái nhiều thành công mới!"
+    },
+    {
+        id: 5,
+        name: "Phản Xạ Lưới Nhanh",
+        tempoLabel: "1.52x (Trung bình)",
+        estTime: "~4.0 phút",
+        targetScore: 5700,
+        speedMult: 1.52,
+        curveFactor: 0.21,
+        spawnInterval: 1.18,
+        bananaChance: 0.16,
+        enemyEmoji: "🦊",
+        courtOuter: "#3b2f63",
+        courtInner: "#6d28d9",
+        kitchenColor: "#7c3aed",
+        wish: "Chúc Thầy luôn vững tay chèo, dìu dắt thêm nhiều thế hệ học trò yêu thể thao và sống tích cực!"
+    },
+    {
+        id: 6,
+        name: "Cơn Lốc Bóng Xoáy",
+        tempoLabel: "1.68x (Hứng khởi)",
+        estTime: "~4.5 phút",
+        targetScore: 6300,
+        speedMult: 1.68,
+        curveFactor: 0.25,
+        spawnInterval: 1.12,
+        bananaChance: 0.18,
+        enemyEmoji: "🐯",
+        courtOuter: "#4c1d95",
+        courtInner: "#7e22ce",
+        kitchenColor: "#9333ea",
+        wish: "Cảm ơn Thầy vì sự kiên nhẫn chỉnh từng dáng đứng, từng góc vợt cho chúng em tiến bộ mỗi ngày!"
+    },
+    {
+        id: 7,
+        name: "Bản Lĩnh Tay Vợt",
+        tempoLabel: "1.84x (Nhanh)",
+        estTime: "~4.5 phút",
+        targetScore: 6900,
+        speedMult: 1.84,
+        curveFactor: 0.28,
+        spawnInterval: 1.05,
+        bananaChance: 0.20,
+        enemyEmoji: "🦁",
+        courtOuter: "#6b213a",
+        courtInner: "#be123c",
+        kitchenColor: "#e11d48",
+        wish: "Chúc Thầy luôn phong độ đỉnh cao, dẻo dai bền bỉ trên mọi sân đấu Pickleball!"
+    },
+    {
+        id: 8,
+        name: "Thử Thách Chuyên Gia",
+        tempoLabel: "2.00x (Tốc độ cao)",
+        estTime: "~4.5 phút",
+        targetScore: 7400,
+        speedMult: 2.00,
+        curveFactor: 0.31,
+        spawnInterval: 0.98,
+        bananaChance: 0.22,
+        enemyEmoji: "🤖",
+        courtOuter: "#7c2d12",
+        courtInner: "#c2410c",
+        kitchenColor: "#ea580c",
+        wish: "Mỗi giọt mồ hôi trên sân tập đều là kỷ niệm đẹp dưới sự hướng dẫn tận tình của Thầy!"
+    },
+    {
+        id: 9,
+        name: "Bán Kết Rực Lửa",
+        tempoLabel: "2.18x (Siêu tốc)",
+        estTime: "~5.0 phút",
+        targetScore: 8000,
+        speedMult: 2.18,
+        curveFactor: 0.34,
+        spawnInterval: 0.92,
+        bananaChance: 0.23,
+        enemyEmoji: "⚡",
+        courtOuter: "#78350f",
+        courtInner: "#b45309",
+        kitchenColor: "#d97706",
+        wish: "Chúc gia đình Thầy luôn bình an, vạn sự như ý và tràn ngập niềm tự hào!"
+    },
+    {
+        id: 10,
+        name: "Chung Kết Vàng Tri Ân",
+        tempoLabel: "2.35x (Đỉnh cao)",
+        estTime: "~5.0 phút",
+        targetScore: 8600,
+        speedMult: 2.35,
+        curveFactor: 0.38,
+        spawnInterval: 0.85,
+        bananaChance: 0.24,
+        enemyEmoji: "👑",
+        courtOuter: "#713f12",
+        courtInner: "#a16207",
+        kitchenColor: "#ca8a04",
+        wish: "Tri ân Người Thầy Truyền Lửa — Mãi yêu quý và kính trọng Thầy!"
+    }
+];
+
+// --- 3. HỆ THỐNG ÂM THANH VUI NHỘN (WEB AUDIO API) ---
+class SoundManager {
+    constructor() {
+        this.ctx = null;
+        this.enabled = true;
+    }
+    init() {
+        if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+    playPop(pitchMult = 1) {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(340 * pitchMult, now);
+        osc.frequency.exponentialRampToValueAtTime(760 * pitchMult, now + 0.075);
+        gain.gain.setValueAtTime(0.28, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+    }
+    playSweetHit() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.03);
+            gain.gain.setValueAtTime(0.18, now + idx * 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.03 + 0.16);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.03);
+            osc.stop(now + idx * 0.03 + 0.17);
+        });
+    }
+    playCollect(type) {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        if (type === 'banana') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(280, now);
+            osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.27);
+            return;
+        }
+        const notes = type === 'trophy' ? [587.33, 783.99, 1046.5] : [659.25, 987.77];
+        notes.forEach((f, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + i * 0.06);
+            gain.gain.setValueAtTime(0.22, now + i * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.22);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.06);
+            osc.stop(now + i * 0.06 + 0.23);
+        });
+    }
+    playLevelClear() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const melody = [523.25, 659.25, 783.99, 1046.5];
+        melody.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+            gain.gain.setValueAtTime(0.22, now + idx * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.09);
+            osc.stop(now + idx * 0.09 + 0.36);
+        });
+    }
+    playVictoryFanfare() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const melody = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+        const times = [0, 0.12, 0.24, 0.36, 0.52, 0.68];
+        melody.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + times[idx]);
+            gain.gain.setValueAtTime(0.25, now + times[idx]);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + times[idx] + 0.4);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + times[idx]);
+            osc.stop(now + times[idx] + 0.42);
+        });
+    }
+}
+const audio = new SoundManager();
+
+// --- 4. DOM & TRẠNG THÁI GAME ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const wrapper = document.getElementById('game-wrapper');
+
+const screenStart = document.getElementById('screen-start');
+const screenSplash = document.getElementById('screen-splash');
+const screenPause = document.getElementById('screen-pause');
+const screenLevelClear = document.getElementById('screen-level-clear');
+const screenLeaderboard = document.getElementById('screen-leaderboard');
+const screenVictory = document.getElementById('screen-victory');
+
+const hudBar = document.getElementById('hud-bar');
+const progressContainer = document.getElementById('progress-container');
+const progressFill = document.getElementById('progress-fill');
+const bottomHint = document.getElementById('bottom-hint');
+
+let teacherName = "Thầy Giáo Kính Yêu";
+let senderName = "Đoàn Đức Duy & Tập thể Sinh viên";
+
+let gameState = 'SPLASH';
+let currentLevelIndex = 0;
+let completedLevels = new Set();
+let levelScore = 0;
+let totalScoreAccumulated = 0;
+let levelElapsedSeconds = 0;
+let combo = 0;
+let doubleScoreTimer = 0;
+let slowPaddleTimer = 0;
+let shakeTimer = 0;
+let spawnItemTimer = 0;
+
+let width = 400;
+let height = 720;
+
+const player = {
+    x: 200,
+    y: 620,
+    targetX: 200,
+    width: 112,
+    height: 18,
+    tilt: 0
+};
+
+const enemy = {
+    x: 200,
+    y: 120,
+    width: 96,
+    height: 16
+};
+
+let balls = [];
+let items = [];
+let floatingTexts = [];
+let particles = [];
+let confetti = [];
+
+const PRAISE_WORDS = [
+    "Chuẩn Dink! ✨",
+    "Quá Đỉnh! 🔥",
+    "Đẹp Mắt! 🌟",
+    "Tuyệt Vời! 👏",
+    "Tay Vợt Vàng! 🏅"
+];
+
+// --- 5. VẼ XEM TRƯỚC BÓNG ĐỘNG (BALL LIVE PREVIEW) ---
+const previewCanvas = document.getElementById('ballPreviewCanvas');
+const pCtx = previewCanvas.getContext('2d');
+let previewAngle = 0;
+
+function drawBallPreview() {
+    const cfg = getSelectedBallColor();
+    pCtx.clearRect(0, 0, 54, 54);
+    previewAngle += 0.04;
+
+    const cx = 27, cy = 27, r = 17;
+    pCtx.save();
+    pCtx.translate(cx, cy);
+    pCtx.rotate(previewAngle);
+
+    pCtx.shadowColor = cfg.glow;
+    pCtx.shadowBlur = 10;
+    pCtx.fillStyle = cfg.fill;
+    pCtx.beginPath();
+    pCtx.arc(0, 0, r, 0, Math.PI * 2);
+    pCtx.fill();
+
+    pCtx.shadowBlur = 0;
+    pCtx.strokeStyle = cfg.stroke;
+    pCtx.lineWidth = 2;
+    pCtx.stroke();
+
+    pCtx.fillStyle = cfg.hole;
+    const holes = [[0, 0], [-7, -5], [7, -5], [-6, 6], [6, 6], [0, -9], [0, 9]];
+    holes.forEach(([hx, hy]) => {
+        pCtx.beginPath();
+        pCtx.arc(hx, hy, 2.1, 0, Math.PI * 2);
+        pCtx.fill();
+    });
+
+    pCtx.fillStyle = 'rgba(255,255,255,0.45)';
+    pCtx.beginPath();
+    pCtx.arc(-5, -6, 3.8, 0, Math.PI * 2);
+    pCtx.fill();
+    pCtx.restore();
+}
+
+function renderAllBallSwatches() {
+    const startContainer = document.getElementById('ball-color-swatches');
+    const pauseContainer = document.getElementById('pause-ball-swatches');
+    [startContainer, pauseContainer].forEach(container => {
+        if (!container) return;
+        container.innerHTML = '';
+        BALL_COLORS.forEach(c => {
+            const isSelected = c.id === selectedBallColorId;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.title = c.name;
+            btn.className = `w-8 h-8 rounded-full transition-transform cursor-pointer flex items-center justify-center ${
+                isSelected ? 'scale-110 ring-2 ring-white ring-offset-2 ring-offset-slate-900' : 'opacity-80 hover:opacity-100'
+            }`;
+            btn.style.backgroundColor = c.fill;
+            btn.style.border = `2px solid ${c.stroke}`;
+            if (isSelected) {
+                btn.innerHTML = `<span class="text-slate-900 font-black text-xs">✓</span>`;
+            }
+            btn.addEventListener('click', () => {
+                selectedBallColorId = c.id;
+                audio.init();
+                audio.playPop(1.25);
+                document.getElementById('selected-ball-label').textContent = c.name;
+                document.getElementById('hud-ball-dot').style.background = c.fill;
+                renderAllBallSwatches();
+            });
+            container.appendChild(btn);
+        });
+    });
+}
+
+// --- 6. RENDER LƯỚI CHỌN 10 MÀN CHƠI ---
+function renderStageMap() {
+    const grid = document.getElementById('stage-grid');
+    grid.innerHTML = '';
+
+    LEVELS.forEach((lvl, idx) => {
+        const isDone = completedLevels.has(lvl.id);
+        const isSelected = idx === currentLevelIndex;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+
+        let bgClass = 'bg-slate-900/75 border-white/15 text-sky-200 hover:bg-slate-800';
+        if (isSelected) {
+            bgClass = 'bg-amber-400/25 border-amber-400 text-amber-200 ring-1 ring-amber-300';
+        } else if (isDone) {
+            bgClass = 'bg-emerald-500/25 border-emerald-400/60 text-emerald-200';
+        }
+
+        btn.className = `py-1.5 px-1 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center ${bgClass}`;
+        btn.innerHTML = `
+            <span class="text-[11px] font-black leading-none">${lvl.id}</span>
+            <span class="text-[9px] font-bold opacity-85 mt-0.5">${lvl.speedMult.toFixed(1)}x</span>
+            ${isDone ? '<span class="text-[9px] text-emerald-300 leading-none">✅</span>' : ''}
+        `;
+
+        btn.addEventListener('click', () => {
+            currentLevelIndex = idx;
+            audio.init();
+            audio.playPop(1.0 + idx * 0.04);
+            renderStageMap();
+        });
+        grid.appendChild(btn);
+    });
+
+    const cur = LEVELS[currentLevelIndex];
+    document.getElementById('completed-count-label').textContent = `Đã mở: ${completedLevels.size}/10`;
+    document.getElementById('detail-level-title').textContent = `Màn ${cur.id}: ${cur.name}`;
+    document.getElementById('detail-level-meta').textContent = `Nhịp bóng: ${cur.tempoLabel} • Mục tiêu: ${cur.targetScore.toLocaleString('vi-VN')}đ (${cur.estTime})`;
+    document.getElementById('detail-level-emoji').textContent = cur.enemyEmoji;
+    document.getElementById('btn-start-game').textContent = `CHƠI MÀN ${cur.id} NGAY 🚀`;
+}
+
+// --- 7. RESIZE & QUẢN LÝ BÓNG ---
+function resizeCanvas() {
+    const rect = wrapper.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    player.y = height - 88;
+    player.width = Math.max(96, Math.min(126, width * 0.27));
+    player.x = Math.max(player.width / 2, Math.min(width - player.width / 2, player.x));
+
+    enemy.y = 122;
+    enemy.width = Math.max(82, Math.min(108, width * 0.23));
+}
+window.addEventListener('resize', resizeCanvas);
+
+function createBall(isBonus = false) {
+    const lvl = LEVELS[currentLevelIndex];
+    const baseSpeed = Math.max(330, height * 0.46) * lvl.speedMult;
+    const angle = (Math.random() - 0.5) * 0.72;
+    return {
+        x: width / 2 + (Math.random() - 0.5) * 60,
+        y: height * 0.34,
+        vx: Math.sin(angle) * baseSpeed * 0.85,
+        vy: Math.cos(angle) * baseSpeed,
+        speed: baseSpeed,
+        radius: isBonus ? 12 : 14,
+        isBonus: isBonus,
+        trail: []
+    };
+}
+
+// --- 8. ĐIỀU KHIỂN CẢM ỨNG & CHUỘT ---
+function updatePointer(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const relX = clientX - rect.left;
+    const halfW = player.width / 2 + 6;
+    player.targetX = Math.max(halfW, Math.min(width - halfW, relX));
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+    if (gameState === 'PLAYING') {
+        audio.init();
+        updatePointer(e.clientX);
+    }
+});
+canvas.addEventListener('pointermove', (e) => {
+    if (gameState === 'PLAYING') {
+        updatePointer(e.clientX);
+    }
+});
+canvas.addEventListener('touchmove', (e) => {
+    if (gameState === 'PLAYING' && e.touches.length > 0) {
+        e.preventDefault();
+        updatePointer(e.touches[0].clientX);
+    }
+}, { passive: false });
+
+// --- 9. HIỆU ỨNG HẠT & CHỮ BAY ---
+function spawnParticles(x, y, color, count = 12) {
+    for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 60 + Math.random() * 190;
+        particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            life: 0.42 + Math.random() * 0.25,
+            maxLife: 0.65,
+            color,
+            size: 3 + Math.random() * 4
+        });
+    }
+}
+
+function spawnFloatingText(x, y, text, color = '#fde047') {
+    floatingTexts.push({
+        x, y,
+        text,
+        color,
+        life: 0.9,
+        maxLife: 0.9
+    });
+}
+
+function spawnItem() {
+    const lvl = LEVELS[currentLevelIndex];
+    const r = Math.random();
+    let type = 'heart';
+    let emoji = '❤️';
+    if (r < lvl.bananaChance) {
+        type = 'banana';
+        emoji = '🍌';
+    } else if (r < lvl.bananaChance + 0.24) {
+        type = 'trophy';
+        emoji = '🏆';
+    } else if (r < lvl.bananaChance + 0.58) {
+        type = 'flower';
+        emoji = '💐';
+    }
+
+    items.push({
+        x: 38 + Math.random() * (width - 76),
+        y: height * 0.28,
+        vy: (135 + Math.random() * 65) * (0.9 + lvl.speedMult * 0.14),
+        type,
+        emoji,
+        radius: 18,
+        wobble: Math.random() * Math.PI * 2
+    });
+}
+
+// --- 10. BẮT ĐẦU MÀN CHƠI ---
+function startLevel(levelIdx) {
+    currentLevelIndex = levelIdx;
+    const lvl = LEVELS[currentLevelIndex];
+
+    const tInput = document.getElementById('input-teacher-name').value.trim();
+    const sInput = document.getElementById('input-sender-name').value.trim();
+    if (tInput) teacherName = tInput;
+    if (sInput) senderName = sInput;
+
+    audio.init();
+    audio.playPop(1.2);
+
+    levelScore = 0;
+    levelElapsedSeconds = 0;
+    combo = 0;
+    doubleScoreTimer = 0;
+    slowPaddleTimer = 0;
+    shakeTimer = 0;
+    spawnItemTimer = 1.0;
+
+    player.x = width / 2;
+    player.targetX = width / 2;
+    enemy.x = width / 2;
+
+    balls = [createBall(false)];
+    items = [];
+    floatingTexts = [];
+    particles = [];
+    confetti = [];
+
+    gameState = 'PLAYING';
+    screenStart.classList.add('hidden');
+    screenPause.classList.add('hidden');
+    screenLevelClear.classList.add('hidden');
+    screenVictory.classList.add('hidden');
+
+    hudBar.classList.remove('hidden');
+    progressContainer.classList.remove('hidden');
+    bottomHint.classList.remove('hidden');
+
+    document.getElementById('hud-level-badge').textContent = `Màn ${lvl.id}/10`;
+    document.getElementById('hud-tempo-badge').textContent = `${lvl.speedMult.toFixed(2)}x`;
+    document.getElementById('hud-ball-dot').style.background = getSelectedBallColor().fill;
+    document.getElementById('bottom-hint-text').textContent = `Màn ${lvl.id}: ${lvl.name} • Nhịp ${lvl.tempoLabel}`;
+
+    updateHUD();
+}
+
+function formatTimeMMSS(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function updateHUD() {
+    const lvl = LEVELS[currentLevelIndex];
+    document.getElementById('hud-score').textContent = levelScore.toLocaleString('vi-VN');
+    document.getElementById('hud-target').textContent = lvl.targetScore.toLocaleString('vi-VN');
+    document.getElementById('hud-timer').textContent = `⏱️ ${formatTimeMMSS(levelElapsedSeconds)}`;
+
+    const pct = Math.min(100, (levelScore / lvl.targetScore) * 100);
+    progressFill.style.width = `${pct}%`;
+
+    const comboBadge = document.getElementById('hud-combo-badge');
+    if (doubleScoreTimer > 0) {
+        comboBadge.textContent = `🏆 X2 ĐIỂM (${Math.ceil(doubleScoreTimer)}s)`;
+        comboBadge.classList.remove('opacity-0');
+    } else if (combo >= 2) {
+        comboBadge.textContent = `🔥 COMBO x${combo}`;
+        comboBadge.classList.remove('opacity-0');
+    } else {
+        comboBadge.classList.add('opacity-0');
+    }
+}
+
+function addScore(points, x, y, customLabel = null) {
+    const mult = doubleScoreTimer > 0 ? 2 : 1;
+    const gained = points * mult;
+    levelScore += gained;
+    totalScoreAccumulated += gained;
+    const label = customLabel || `+${gained}${mult > 1 ? ' (x2)' : ''}`;
+    spawnFloatingText(x, y, label, mult > 1 ? '#fde047' : '#a7f3d0');
+    updateHUD();
+
+    const lvl = LEVELS[currentLevelIndex];
+    if (levelScore >= lvl.targetScore && gameState === 'PLAYING') {
+        handleLevelComplete();
+    }
+}
+
+// --- 11. VÒNG LẶP CẬP NHẬT VẬT LÝ ---
+function update(dt) {
+    const lvl = LEVELS[currentLevelIndex];
+
+    if (gameState === 'VICTORY') {
+        confetti.forEach(c => {
+            c.y += c.vy * dt;
+            c.x += Math.sin(c.wobble) * 45 * dt;
+            c.wobble += 4 * dt;
+            c.rot += c.vRot * dt;
+            if (c.y > height + 20) {
+                c.y = -15;
+                c.x = Math.random() * width;
+            }
+        });
+        return;
+    }
+
+    if (gameState !== 'PLAYING') return;
+
+    levelElapsedSeconds += dt;
+    if (Math.floor(levelElapsedSeconds) !== Math.floor(levelElapsedSeconds - dt)) {
+        document.getElementById('hud-timer').textContent = `⏱️ ${formatTimeMMSS(levelElapsedSeconds)}`;
+    }
+
+    if (doubleScoreTimer > 0) {
+        doubleScoreTimer = Math.max(0, doubleScoreTimer - dt);
+        if (doubleScoreTimer === 0) updateHUD();
+    }
+    if (slowPaddleTimer > 0) slowPaddleTimer = Math.max(0, slowPaddleTimer - dt);
+    if (shakeTimer > 0) shakeTimer = Math.max(0, shakeTimer - dt);
+
+    // Di chuyển vợt người chơi
+    const lerpFactor = slowPaddleTimer > 0 ? 7.5 : 22;
+    const prevX = player.x;
+    player.x += (player.targetX - player.x) * Math.min(1, lerpFactor * dt);
+    player.tilt = Math.max(-0.22, Math.min(0.22, (player.x - prevX) * 0.015));
+
+    // AI đối thủ
+    let leadBall = balls[0];
+    balls.forEach(b => {
+        if (b.vy < 0 && b.y < leadBall.y) leadBall = b;
+    });
+    if (leadBall) {
+        const aiSpeed = (280 + lvl.speedMult * 95) * dt;
+        const diff = leadBall.x - enemy.x;
+        enemy.x += Math.sign(diff) * Math.min(Math.abs(diff), aiSpeed);
+        const halfE = enemy.width / 2 + 10;
+        enemy.x = Math.max(halfE, Math.min(width - halfE, enemy.x));
+    }
+
+    // Sinh vật phẩm
+    spawnItemTimer -= dt;
+    if (spawnItemTimer <= 0) {
+        spawnItem();
+        spawnItemTimer = lvl.spawnInterval + Math.random() * 0.85;
+    }
+
+    // Cập nhật bóng
+    const ballCfg = getSelectedBallColor();
+    for (let i = balls.length - 1; i >= 0; i--) {
+        const b = balls[i];
+        b.trail.push({ x: b.x, y: b.y });
+        if (b.trail.length > 9) b.trail.shift();
+
+        if (lvl.curveFactor > 0) {
+            b.vx += Math.sin(b.y * 0.014) * lvl.curveFactor * 240 * dt;
+        }
+
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+
+        // Nảy biên dọc
+        if (b.x - b.radius < 14) {
+            b.x = 14 + b.radius;
+            b.vx = Math.abs(b.vx);
+            audio.playPop(0.95);
+        } else if (b.x + b.radius > width - 14) {
+            b.x = width - 14 - b.radius;
+            b.vx = -Math.abs(b.vx);
+            audio.playPop(0.95);
+        }
+
+        // Va chạm vợt AI
+        if (b.vy < 0 &&
+            b.y - b.radius <= enemy.y + enemy.height / 2 &&
+            b.y + b.radius >= enemy.y - enemy.height / 2 &&
+            Math.abs(b.x - enemy.x) <= enemy.width / 2 + b.radius) {
+
+            b.y = enemy.y + enemy.height / 2 + b.radius;
+            const hitOffset = (b.x - enemy.x) / (enemy.width / 2);
+            const bounceAngle = hitOffset * 0.72;
+            const currentSpd = Math.min(b.speed * 1.15, Math.hypot(b.vx, b.vy) * 1.006);
+            b.vx = Math.sin(bounceAngle) * currentSpd;
+            b.vy = Math.cos(bounceAngle) * currentSpd;
+
+            audio.playPop(0.85);
+            spawnParticles(b.x, b.y, '#38bdf8', 7);
+        }
+
+        // Va chạm vợt Người chơi
+        if (b.vy > 0 &&
+            b.y + b.radius >= player.y - player.height / 2 &&
+            b.y - b.radius <= player.y + player.height / 2 + 12 &&
+            Math.abs(b.x - player.x) <= player.width / 2 + b.radius + 4) {
+
+            b.y = player.y - player.height / 2 - b.radius;
+            const hitOffset = (b.x - player.x) / (player.width / 2);
+            const bounceAngle = Math.max(-0.82, Math.min(0.82, hitOffset * 0.78));
+            const currentSpd = Math.min(b.speed * 1.18, Math.hypot(b.vx, b.vy) * 1.01);
+
+            b.vx = Math.sin(bounceAngle) * currentSpd;
+            b.vy = -Math.cos(bounceAngle) * currentSpd;
+
+            combo++;
+            const isSweetSpot = Math.abs(hitOffset) < 0.26;
+            if (isSweetSpot) {
+                audio.playSweetHit();
+                shakeTimer = 0.08;
+                spawnParticles(b.x, b.y, '#fde047', 15);
+                const praise = PRAISE_WORDS[Math.floor(Math.random() * PRAISE_WORDS.length)];
+                addScore(35 + Math.min(25, combo * 2), b.x, b.y - 24, `${praise} +${(35 + Math.min(25, combo * 2)) * (doubleScoreTimer > 0 ? 2 : 1)}`);
+            } else {
+                audio.playPop(1.12);
+                spawnParticles(b.x, b.y, ballCfg.fill, 10);
+                addScore(20 + Math.min(15, combo), b.x, b.y - 20);
+            }
+            updateHUD();
+        }
+
+        // Bóng lọt qua đáy
+        if (b.y - b.radius > height + 10) {
+            if (b.isBonus) {
+                balls.splice(i, 1);
+            } else {
+                combo = 0;
+                updateHUD();
+                spawnFloatingText(Math.max(55, Math.min(width - 55, b.x)), height - 55, "Bóng mới! 🎾", "#bae6fd");
+                b.x = width / 2;
+                b.y = height * 0.34;
+                b.trail = [];
+                const ang = (Math.random() - 0.5) * 0.55;
+                b.vx = Math.sin(ang) * b.speed * 0.85;
+                b.vy = Math.cos(ang) * b.speed;
+            }
+        }
+    }
+
+    // Cập nhật vật phẩm rơi
+    for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i];
+        it.y += it.vy * dt;
+        it.wobble += 4.5 * dt;
+        it.x += Math.sin(it.wobble) * 32 * dt;
+
+        const dist = Math.hypot(it.x - player.x, it.y - player.y);
+        if (dist <= player.width / 2 + it.radius + 6) {
+            audio.playCollect(it.type);
+            if (it.type === 'heart') {
+                spawnParticles(it.x, it.y, '#fb7185', 14);
+                addScore(65, it.x, it.y - 16, "❤️ +65");
+            } else if (it.type === 'flower') {
+                spawnParticles(it.x, it.y, '#f472b6', 16);
+                addScore(110, it.x, it.y - 16, "💐 Hoa 20/11 +110");
+            } else if (it.type === 'trophy') {
+                doubleScoreTimer = 8.0;
+                if (balls.length < 2) {
+                    balls.push(createBall(true));
+                }
+                spawnParticles(it.x, it.y, '#facc15', 22);
+                addScore(140, it.x, it.y - 20, "🏆 X2 ĐIỂM + ĐA BÓNG!");
+            } else if (it.type === 'banana') {
+                slowPaddleTimer = 2.0;
+                shakeTimer = 0.14;
+                spawnParticles(it.x, it.y, '#fef08a', 12);
+                spawnFloatingText(it.x, it.y - 18, "🍌 Úi trơn quá!", "#fef08a");
+            }
+            items.splice(i, 1);
+            continue;
+        }
+
+        if (it.y > height + 30) {
+            items.splice(i, 1);
+        }
+    }
+
+    // Cập nhật hạt & chữ bay
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= dt;
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+    for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.y -= 48 * dt;
+        ft.life -= dt;
+        if (ft.life <= 0) floatingTexts.splice(i, 1);
+    }
+}
+
+// --- 12. VẼ SÂN ĐẤU & NHÂN VẬT ---
+function drawCourt() {
+    const lvl = LEVELS[currentLevelIndex];
+    const pad = 14;
+    const courtW = width - pad * 2;
+    const courtH = height - pad * 2;
+
+    ctx.fillStyle = lvl.courtOuter;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = lvl.courtInner;
+    ctx.beginPath();
+    ctx.roundRect(pad, pad, courtW, courtH, 18);
+    ctx.fill();
+
+    const netY = height * 0.48;
+    const kitchenH = height * 0.14;
+
+    ctx.fillStyle = lvl.kitchenColor;
+    ctx.fillRect(pad, netY - kitchenH, courtW, kitchenH * 2);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(pad, pad, courtW, courtH, 18);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(pad, netY - kitchenH);
+    ctx.lineTo(width - pad, netY - kitchenH);
+    ctx.moveTo(pad, netY + kitchenH);
+    ctx.lineTo(width - pad, netY + kitchenH);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(width / 2, pad);
+    ctx.lineTo(width / 2, netY - kitchenH);
+    ctx.moveTo(width / 2, netY + kitchenH);
+    ctx.lineTo(width / 2, height - pad);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.26)';
+    ctx.font = '800 11px "Be Vietnam Pro", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('KITCHEN • NON-VOLLEY ZONE', width / 2, netY + kitchenH - 8);
+    ctx.fillText(`MÀN ${lvl.id}: ${lvl.name.toUpperCase()} • CHÀO MỪNG 20/11`, width / 2, netY - kitchenH - 10);
+
+    // Lưới Pickleball
+    ctx.save();
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+    ctx.fillRect(pad - 2, netY - 5, courtW + 4, 10);
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.lineWidth = 1;
+    for (let x = pad; x < width - pad; x += 10) {
+        ctx.beginPath();
+        ctx.moveTo(x, netY - 5);
+        ctx.lineTo(x, netY + 5);
+        ctx.stroke();
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(pad - 3, netY - 2, courtW + 6, 4);
+    ctx.restore();
+}
+
+function drawEnemy() {
+    const lvl = LEVELS[currentLevelIndex];
+    ctx.save();
+    ctx.translate(enemy.x, enemy.y);
+
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath();
+    ctx.ellipse(0, 12, enemy.width / 2, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(-enemy.width / 2, -enemy.height / 2, enemy.width, enemy.height, 9);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = '26px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(lvl.enemyEmoji, 0, -24);
+    ctx.restore();
+}
+
+function drawPlayer() {
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.rotate(player.tilt);
+
+    ctx.fillStyle = 'rgba(0,0,0,0.34)';
+    ctx.beginPath();
+    ctx.ellipse(0, 14, player.width / 2, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#78350f';
+    ctx.beginPath();
+    ctx.roundRect(-7, player.height / 2 - 2, 14, 18, 5);
+    ctx.fill();
+
+    const grad = ctx.createLinearGradient(-player.width / 2, 0, player.width / 2, 0);
+    if (slowPaddleTimer > 0) {
+        grad.addColorStop(0, '#fef08a');
+        grad.addColorStop(1, '#eab308');
+    } else if (doubleScoreTimer > 0) {
+        grad.addColorStop(0, '#fde047');
+        grad.addColorStop(0.5, '#fb923c');
+        grad.addColorStop(1, '#f43f5e');
+    } else {
+        grad.addColorStop(0, '#fb923c');
+        grad.addColorStop(0.5, '#f97316');
+        grad.addColorStop(1, '#ea580c');
+    }
+
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(-player.width / 2, -player.height / 2, player.width, player.height, 10);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.48)';
+    ctx.beginPath();
+    ctx.roundRect(-player.width * 0.14, -4, player.width * 0.28, 8, 4);
+    ctx.fill();
+
+    ctx.restore();
+}
+
+function drawBalls() {
+    const ballCfg = getSelectedBallColor();
+    balls.forEach(b => {
+        b.trail.forEach((pt, idx) => {
+            const ratio = (idx + 1) / b.trail.length;
+            ctx.fillStyle = b.isBonus ? `rgba(251, 191, 36, ${ratio * 0.35})` : ballCfg.trail;
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, b.radius * ratio * 0.88, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.fillStyle = b.isBonus ? '#fbbf24' : ballCfg.fill;
+        ctx.strokeStyle = b.isBonus ? '#b45309' : ballCfg.stroke;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, b.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = b.isBonus ? '#78350f' : ballCfg.hole;
+        const holes = [[-4, -4], [4, -4], [0, 0], [-4, 4], [4, 4]];
+        holes.forEach(([hx, hy]) => {
+            ctx.beginPath();
+            ctx.arc(hx, hy, 1.8, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.restore();
+    });
+}
+
+function drawItemsAndFX() {
+    items.forEach(it => {
+        ctx.save();
+        ctx.translate(it.x, it.y);
+        ctx.fillStyle = it.type === 'banana' ? 'rgba(254, 240, 138, 0.3)' : 'rgba(255, 255, 255, 0.26)';
+        ctx.beginPath();
+        ctx.arc(0, 0, it.radius + 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.font = '24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(it.emoji, 0, 1);
+        ctx.restore();
+    });
+
+    particles.forEach(p => {
+        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    floatingTexts.forEach(ft => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife);
+        ctx.font = '900 15px "Be Vietnam Pro", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.9)';
+        ctx.lineWidth = 4;
+        ctx.strokeText(ft.text, ft.x, ft.y);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+    });
+
+    if (gameState === 'VICTORY') {
+        confetti.forEach(c => {
+            ctx.save();
+            ctx.translate(c.x, c.y);
+            ctx.rotate(c.rot);
+            ctx.fillStyle = c.color;
+            ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+            ctx.restore();
+        });
+    }
+}
+
+function render() {
+    if (!screenStart.classList.contains('hidden')) {
+        drawBallPreview();
+    }
+
+    ctx.save();
+    if (shakeTimer > 0) {
+        const dx = (Math.random() - 0.5) * 7;
+        const dy = (Math.random() - 0.5) * 7;
+        ctx.translate(dx, dy);
+    }
+
+    drawCourt();
+    drawEnemy();
+    drawPlayer();
+    if (gameState === 'PLAYING' || gameState === 'PAUSED') {
+        drawBalls();
+    }
+    drawItemsAndFX();
+    ctx.restore();
+}
+
+let lastTime = performance.now();
+function gameLoop(now = performance.now()) {
+    const dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+
+    update(dt);
+    render();
+    requestAnimationFrame(gameLoop);
+}
+
+// --- 13. HỆ THỐNG ÂM THANH & BẬT/TẮT ---
+function toggleSound() {
+    audio.init();
+    audio.enabled = !audio.enabled;
+    const on = audio.enabled;
+    document.getElementById('icon-sound-on').classList.toggle('hidden', !on);
+    document.getElementById('icon-sound-off').classList.toggle('hidden', on);
+    document.getElementById('start-sound-icon').textContent = on ? '🔊' : '🔇';
+}
+
+// --- 14. XỬ LÝ QUA MÀN (LEVEL CLEAR) & CHIẾN THẮNG CHUNG CUỘC 10 MÀN ---
+function handleLevelComplete() {
+    const lvl = LEVELS[currentLevelIndex];
+    completedLevels.add(lvl.id);
+    syncMyScoreToLeaderboard(lvl.id, levelScore);
+
+    if (currentLevelIndex >= LEVELS.length - 1) {
+        triggerGrandVictory();
+        return;
+    }
+
+    gameState = 'LEVEL_CLEAR';
+    audio.playLevelClear();
+
+    hudBar.classList.add('hidden');
+    progressContainer.classList.add('hidden');
+    bottomHint.classList.add('hidden');
+
+    document.getElementById('clear-level-num').textContent = lvl.id;
+    document.getElementById('clear-level-title').textContent = `Hoàn Thành Màn ${lvl.id}: ${lvl.name}!`;
+    document.getElementById('clear-stage-score').textContent = levelScore.toLocaleString('vi-VN');
+    document.getElementById('clear-stage-time').textContent = formatTimeMMSS(levelElapsedSeconds);
+    document.getElementById('clear-piece-num').textContent = lvl.id;
+    document.getElementById('clear-unlocked-wish').textContent = `"${lvl.wish}"`;
+
+    const nextLvl = LEVELS[currentLevelIndex + 1];
+    document.getElementById('btn-next-level').textContent = `TIẾP TỤC MÀN ${nextLvl.id}: ${nextLvl.name.toUpperCase()} ➡️`;
+
+    screenLevelClear.classList.remove('hidden');
+}
+
+function triggerGrandVictory() {
+    gameState = 'VICTORY';
+    audio.playVictoryFanfare();
+
+    const tInput = document.getElementById('input-teacher-name').value.trim();
+    const sInput = document.getElementById('input-sender-name').value.trim();
+    if (tInput) teacherName = tInput;
+    if (sInput) senderName = sInput;
+
+    hudBar.classList.add('hidden');
+    progressContainer.classList.add('hidden');
+    bottomHint.classList.add('hidden');
+    screenStart.classList.add('hidden');
+    screenLevelClear.classList.add('hidden');
+
+    document.getElementById('card-teacher-name').textContent = teacherName;
+    document.getElementById('card-sender-name').textContent = senderName;
+    document.getElementById('card-total-score').textContent = Math.max(totalScoreAccumulated, levelScore).toLocaleString('vi-VN');
+    document.getElementById('snapshot-toast').classList.add('hidden');
+
+    const colors = ['#facc15', '#fb7185', '#38bdf8', '#4ade80', '#c084fc', '#fb923c'];
+    confetti = [];
+    for (let i = 0; i < 85; i++) {
+        confetti.push({
+            x: Math.random() * width,
+            y: Math.random() * height - height,
+            vy: 95 + Math.random() * 145,
+            w: 7 + Math.random() * 6,
+            h: 4 + Math.random() * 5,
+            color: colors[i % colors.length],
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 8,
+            wobble: Math.random() * Math.PI * 2
+        });
+    }
+
+    screenVictory.classList.remove('hidden');
+}
+
+// Xuất ảnh PNG tấm thiệp 20/11 tổng hợp 10 mảnh ghép
+function downloadCardImage() {
+    const c = document.createElement('canvas');
+    c.width = 900;
+    c.height = 1280;
+    const g = c.getContext('2d');
+
+    const bg = g.createLinearGradient(0, 0, 900, 1280);
+    bg.addColorStop(0, '#fffbeb');
+    bg.addColorStop(0.5, '#fef3c7');
+    bg.addColorStop(1, '#fde68a');
+    g.fillStyle = bg;
+    g.fillRect(0, 0, 900, 1280);
+
+    g.strokeStyle = '#f59e0b';
+    g.lineWidth = 14;
+    g.strokeRect(28, 28, 844, 1224);
+
+    g.fillStyle = '#e11d48';
+    g.beginPath();
+    g.roundRect(190, 62, 520, 44, 22);
+    g.fill();
+
+    g.fillStyle = '#ffffff';
+    g.font = 'bold 20px sans-serif';
+    g.textAlign = 'center';
+    g.fillText('CHÚC MỪNG NGÀY NHÀ GIÁO VIỆT NAM 20/11', 450, 91);
+
+    g.fillStyle = '#0f172a';
+    g.font = '900 40px sans-serif';
+    g.fillText('Kính Tặng:', 450, 162);
+
+    g.fillStyle = '#e11d48';
+    g.font = '900 46px sans-serif';
+    g.fillText(teacherName, 450, 220);
+
+    g.fillStyle = 'rgba(255,255,255,0.92)';
+    g.beginPath();
+    g.roundRect(64, 255, 772, 895, 28);
+    g.fill();
+
+    g.textAlign = 'left';
+    g.font = '600 22px sans-serif';
+    let yPos = 312;
+    LEVELS.forEach((lvl) => {
+        g.fillStyle = '#1e293b';
+        const line = `${lvl.id}. ${lvl.wish}`;
+        const words = line.split(' ');
+        let currentLine = '';
+        words.forEach(w => {
+            const test = currentLine + w + ' ';
+            if (g.measureText(test).width > 710) {
+                g.fillText(currentLine.trim(), 96, yPos);
+                yPos += 32;
+                currentLine = '    ' + w + ' ';
+            } else {
+                currentLine = test;
+            }
+        });
+        g.fillText(currentLine.trim(), 96, yPos);
+        yPos += 50;
+    });
+
+    g.textAlign = 'right';
+    g.fillStyle = '#92400e';
+    g.font = 'bold 25px sans-serif';
+    g.fillText(`${senderName} ❤️`, 820, 1208);
+
+    g.textAlign = 'left';
+    g.fillStyle = '#64748b';
+    g.font = '600 16px sans-serif';
+    g.fillText('Nhà phát hành game: Đoàn Đức Duy', 64, 1208);
+
+    const link = document.createElement('a');
+    link.download = 'Thiep_20_11_10_Man_Pickleball.png';
+    link.href = c.toDataURL('image/png');
+    link.click();
+
+    document.getElementById('snapshot-toast').classList.remove('hidden');
+}
+
+// --- 15. GẮN SỰ KIỆN MÀN HÌNH CHÀO NPH & BẢNG XẾP HẠNG ---
+function enterMainMenuFromSplash() {
+    if (screenSplash.classList.contains('hidden')) return;
+    audio.init();
+    audio.playPop(1.15);
+    screenSplash.classList.add('hidden');
+    gameState = 'START';
+}
+
+document.getElementById('btn-enter-game').addEventListener('click', enterMainMenuFromSplash);
+
+function openLeaderboardModal() {
+    audio.playPop(1.1);
+    renderLeaderboardUI();
+    screenLeaderboard.classList.remove('hidden');
+}
+
+function closeLeaderboardModal() {
+    audio.playPop(0.95);
+    screenLeaderboard.classList.add('hidden');
+}
+
+document.getElementById('btn-open-leaderboard').addEventListener('click', openLeaderboardModal);
+document.getElementById('btn-clear-leaderboard').addEventListener('click', openLeaderboardModal);
+document.getElementById('btn-victory-leaderboard').addEventListener('click', openLeaderboardModal);
+document.getElementById('btn-close-leaderboard').addEventListener('click', closeLeaderboardModal);
+document.getElementById('btn-lb-back').addEventListener('click', closeLeaderboardModal);
+
+// --- 16. GẮN SỰ KIỆN NÚT BẤM GAMEPLAY ---
+document.getElementById('btn-start-game').addEventListener('click', () => startLevel(currentLevelIndex));
+document.getElementById('btn-sound').addEventListener('click', toggleSound);
+document.getElementById('btn-sound-start').addEventListener('click', toggleSound);
+
+document.getElementById('btn-quick-skip').addEventListener('click', () => {
+    if (gameState !== 'PLAYING') return;
+    const lvl = LEVELS[currentLevelIndex];
+    if (levelScore < lvl.targetScore) {
+        levelScore = lvl.targetScore;
+        totalScoreAccumulated += lvl.targetScore;
+    }
+    handleLevelComplete();
+});
+
+document.getElementById('btn-pause-open').addEventListener('click', () => {
+    if (gameState !== 'PLAYING') return;
+    gameState = 'PAUSED';
+    const lvl = LEVELS[currentLevelIndex];
+    document.getElementById('pause-level-info').textContent = `Màn ${lvl.id}: ${lvl.name} • Thời gian ${formatTimeMMSS(levelElapsedSeconds)}`;
+    renderAllBallSwatches();
+    screenPause.classList.remove('hidden');
+});
+
+document.getElementById('btn-resume-game').addEventListener('click', () => {
+    screenPause.classList.add('hidden');
+    lastTime = performance.now();
+    gameState = 'PLAYING';
+});
+
+document.getElementById('btn-pause-to-menu').addEventListener('click', () => {
+    gameState = 'START';
+    screenPause.classList.add('hidden');
+    hudBar.classList.add('hidden');
+    progressContainer.classList.add('hidden');
+    bottomHint.classList.add('hidden');
+    renderStageMap();
+    screenStart.classList.remove('hidden');
+});
+
+document.getElementById('btn-next-level').addEventListener('click', () => {
+    startLevel(currentLevelIndex + 1);
+});
+
+document.getElementById('btn-replay-level').addEventListener('click', () => {
+    startLevel(currentLevelIndex);
+});
+
+document.getElementById('btn-clear-home').addEventListener('click', () => {
+    gameState = 'START';
+    screenLevelClear.classList.add('hidden');
+    renderStageMap();
+    screenStart.classList.remove('hidden');
+});
+
+document.getElementById('btn-open-full-card-start').addEventListener('click', () => {
+    audio.init();
+    triggerGrandVictory();
+});
+
+document.getElementById('btn-save-photo').addEventListener('click', downloadCardImage);
+
+document.getElementById('btn-replay-all').addEventListener('click', () => {
+    gameState = 'START';
+    screenVictory.classList.add('hidden');
+    confetti = [];
+    renderStageMap();
+    screenStart.classList.remove('hidden');
+});
+
+// Khởi chạy ứng dụng khi tải trang
+window.onload = function () {
+    initCloudLeaderboard();
+    renderAllBallSwatches();
+    renderStageMap();
+renderLeaderboardUI();
+    resizeCanvas();
+    gameLoop();
+
+    // Hiệu ứng thanh tải tự động trên màn hình Nhà Phát Hành Đoàn Đức Duy
+    let splashPct = 0;
+    const splashBar = document.getElementById('splash-progress');
+    const splashTimer = setInterval(() => {
+        splashPct += 5;
+        if (splashBar) splashBar.style.width = `${Math.min(100, splashPct)}%`;
+        if (splashPct >= 100) {
+            clearInterval(splashTimer);
+            setTimeout(enterMainMenuFromSplash, 350);
+        }
+    }, 90);
+};
+</script>
