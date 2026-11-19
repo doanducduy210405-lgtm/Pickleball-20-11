@@ -1132,7 +1132,275 @@ class SoundManager {
     }
 }
 const audio = new SoundManager();
+// ============================================================================
+// HỆ THỐNG ÂM THANH & NHẠC NỀN NÂNG CẤP (CHÂN THỰC & DỊU TAI)
+// ============================================================================
+class SoundManager {
+    constructor() {
+        this.ctx = null;
+        this.bgmEnabled = true;      // Đổi thành false nếu muốn tắt nhạc nền mặc định khi mới mở web
+        this.sfxEnabled = true;
+        this.masterVolume = 0.75;
+        this.musicContext = 'NONE';
+        this.bgmTimer = null;
+        this.bgmStep = 0;
+    }
 
+    init() {
+        if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    }
+
+    setMasterVolume(percent) {
+        this.masterVolume = Math.max(0, Math.min(1, percent / 100));
+    }
+
+    setMusicContext(ctxName) {
+        if (this.musicContext === ctxName && this.bgmTimer) return;
+        this.musicContext = ctxName;
+        this.bgmStep = 0;
+        if (this.bgmTimer) {
+            clearInterval(this.bgmTimer);
+            this.bgmTimer = null;
+        }
+        if (ctxName === 'NONE') return;
+
+        // Nhịp độ: Sảnh chậm rãi nhẹ nhàng (540ms), Vào trận sôi động hào hùng (250ms), Chiến thắng (300ms)
+        const intervalMs = ctxName === 'MATCH' ? 250 : (ctxName === 'VICTORY' ? 300 : 540);
+        this.bgmTimer = setInterval(() => this.playBgmStep(), intervalMs);
+    }
+
+    playBgmStep() {
+        if (!this.bgmEnabled || this.masterVolume <= 0.01) return;
+        if (!this.ctx) this.init();
+        if (!this.ctx || this.ctx.state !== 'running') return;
+
+        // Giai điệu ngũ cung ấm áp ở sảnh & tiết tấu hào hùng khi thi đấu
+        const melodies = {
+            LOBBY:   [261.63, 293.66, 329.63, 392.00, 440.00, 392.00, 329.63, 293.66],
+            MATCH:   [329.63, 329.63, 392.00, 440.00, 523.25, 493.88, 392.00, 440.00],
+            VICTORY: [392.00, 523.25, 659.25, 783.99, 659.25, 783.99]
+        };
+        const basses = {
+            LOBBY:   [130.81, 0, 164.81, 0, 146.83, 0, 196.00, 0],
+            MATCH:   [164.81, 164.81, 196.00, 220.00, 261.63, 246.94, 196.00, 220.00],
+            VICTORY: [196.00, 261.63, 329.63, 392.00, 329.63, 392.00]
+        };
+
+        const notes = melodies[this.musicContext] || melodies.LOBBY;
+        const bassNotes = basses[this.musicContext] || basses.LOBBY;
+        const idx = this.bgmStep % notes.length;
+        const freq = notes[idx];
+        const bassFreq = bassNotes[idx];
+        this.bgmStep++;
+
+        const now = this.ctx.currentTime;
+
+        // Bộ lọc làm mềm tiếng nhạc nền, loại bỏ độ chói
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(this.musicContext === 'MATCH' ? 1100 : 750, now);
+        filter.connect(this.ctx.destination);
+
+        // Kênh giai điệu chính
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+
+        const baseVol = this.musicContext === 'MATCH' ? 0.042 : 0.032;
+        const vol = baseVol * this.masterVolume;
+        gain.gain.setValueAtTime(0.0005, now);
+        gain.gain.linearRampToValueAtTime(vol, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.34);
+
+        osc.connect(gain);
+        gain.connect(filter);
+        osc.start(now);
+        osc.stop(now + 0.36);
+
+        // Kênh trầm (Bass) tạo chiều sâu
+        if (bassFreq > 0) {
+            const bOsc = this.ctx.createOscillator();
+            const bGain = this.ctx.createGain();
+            bOsc.type = 'triangle';
+            bOsc.frequency.setValueAtTime(bassFreq, now);
+
+            bGain.gain.setValueAtTime(0.0005, now);
+            bGain.gain.linearRampToValueAtTime(vol * 0.85, now + 0.03);
+            bGain.gain.exponentialRampToValueAtTime(0.0005, now + 0.32);
+
+            bOsc.connect(bGain);
+            bGain.connect(filter);
+            bOsc.start(now);
+            bOsc.stop(now + 0.34);
+        }
+    }
+
+    // Tiếng bóng nhựa rỗng chạm mặt vợt carbon ("Póc" đanh & gọn)
+    playPop(pitchMult = 1) {
+        if (!this.sfxEnabled || !this.ctx || this.masterVolume <= 0.01) return;
+        const now = this.ctx.currentTime;
+
+        // 1. Cộng hưởng khoang rỗng của bóng nhựa 40 lỗ (~1050Hz)
+        const bodyOsc = this.ctx.createOscillator();
+        const bodyGain = this.ctx.createGain();
+        bodyOsc.type = 'sine';
+        bodyOsc.frequency.setValueAtTime(1080 * pitchMult, now);
+        bodyOsc.frequency.exponentialRampToValueAtTime(620 * pitchMult, now + 0.042);
+
+        bodyGain.gain.setValueAtTime(0.32 * this.masterVolume, now);
+        bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+        bodyOsc.connect(bodyGain);
+        bodyGain.connect(this.ctx.destination);
+        bodyOsc.start(now);
+        bodyOsc.stop(now + 0.05);
+
+        // 2. Xung va chạm mặt vợt carbon cực ngắn (22ms) tạo độ đanh
+        const clickOsc = this.ctx.createOscillator();
+        const clickGain = this.ctx.createGain();
+        clickOsc.type = 'triangle';
+        clickOsc.frequency.setValueAtTime(1850 * pitchMult, now);
+        clickOsc.frequency.exponentialRampToValueAtTime(420, now + 0.02);
+
+        clickGain.gain.setValueAtTime(0.22 * this.masterVolume, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.022);
+
+        clickOsc.connect(clickGain);
+        clickGain.connect(this.ctx.destination);
+        clickOsc.start(now);
+        clickOsc.stop(now + 0.025);
+    }
+
+    // Tiếng đập bóng chuẩn tâm vợt (Sweet Spot): Đanh lực + ngân nhẹ êm tai
+    playSweetHit() {
+        if (!this.sfxEnabled || !this.ctx || this.masterVolume <= 0.01) return;
+        this.playPop(1.22);
+        const now = this.ctx.currentTime;
+        [587.33, 880.00].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.028);
+            gain.gain.setValueAtTime(0.11 * this.masterVolume, now + idx * 0.028);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.028 + 0.14);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.028);
+            osc.stop(now + idx * 0.028 + 0.15);
+        });
+    }
+
+    playTomatoThrow() {
+        if (!this.sfxEnabled || !this.ctx || this.masterVolume <= 0.01) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.22);
+        gain.gain.setValueAtTime(0.16 * this.masterVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.24);
+    }
+
+    playTomatoSplat() {
+        if (!this.sfxEnabled || !this.ctx || this.masterVolume <= 0.01) return;
+        const now = this.ctx.currentTime;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(480, now);
+        filter.connect(this.ctx.destination);
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.linearRampToValueAtTime(55, now + 0.16);
+        gain.gain.setValueAtTime(0.24 * this.masterVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+        osc.connect(gain);
+        gain.connect(filter);
+        osc.start(now);
+        osc.stop(now + 0.18);
+    }
+
+    playCollect(type) {
+        if (!this.sfxEnabled || !this.ctx || this.masterVolume <= 0.01) return;
+        const now = this.ctx.currentTime;
+        if (type === 'banana') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(260, now);
+            osc.frequency.linearRampToValueAtTime(105, now + 0.22);
+            gain.gain.setValueAtTime(0.16 * this.masterVolume, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.24);
+            return;
+        }
+        const notes = type === 'trophy' ? [523.25, 659.25, 783.99] : [587.33, 783.99];
+        notes.forEach((f, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + i * 0.055);
+            gain.gain.setValueAtTime(0.15 * this.masterVolume, now + i * 0.055);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.055 + 0.18);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.055);
+            osc.stop(now + i * 0.055 + 0.19);
+        });
+    }
+
+    playLevelClear() {
+        if (!this.sfxEnabled || !this.ctx || this.masterVolume <= 0.01) return;
+        const now = this.ctx.currentTime;
+        [440.00, 554.37, 659.25, 880.00].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.085);
+            gain.gain.setValueAtTime(0.18 * this.masterVolume, now + idx * 0.085);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.085 + 0.32);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.085);
+            osc.stop(now + idx * 0.085 + 0.33);
+        });
+    }
+
+    playVictoryFanfare() {
+        if (!this.sfxEnabled || !this.ctx || this.masterVolume <= 0.01) return;
+        const now = this.ctx.currentTime;
+        const melody = [392.00, 523.25, 659.25, 783.99, 659.25, 783.99];
+        const times = [0, 0.11, 0.22, 0.33, 0.48, 0.62];
+        melody.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + times[idx]);
+            gain.gain.setValueAtTime(0.18 * this.masterVolume, now + times[idx]);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + times[idx] + 0.36);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + times[idx]);
+            osc.stop(now + times[idx] + 0.38);
+        });
+    }
+}
+const audio = new SoundManager();
 // ============================================================================
 // HỆ THỐNG BẬC RANK ĐẤU HẠNG ONLINE (8 BẬC RANK)
 // ============================================================================
