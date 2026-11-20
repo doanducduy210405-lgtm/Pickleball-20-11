@@ -416,7 +416,8 @@
                         <span id="selected-ball-label" class="text-[11px] font-bold text-white">Vàng Chanh Chuẩn</span>
                         <div id="ball-color-swatches" class="flex items-center gap-1.5 mt-1.5"></div>
                     </div>
-                   <canvas id="ballPreviewCanvas" width="44" height="44" class="w-11 h-11 rounded-xl bg-slate-900/80 border border-white/15 shrink-0"></canvas>
+                  <canvas id="ballPreviewCanvas" width="44" height="44" class="w-11 h-11 rounded-xl bg-slate-900/80 border border-white/15 shrink-0"></canvas>
+                </div>
 
                 <div class="flex flex-col gap-2">
                     <button id="btn-start-game" class="btn-primary animate-pulse-slow w-full py-3 rounded-2xl text-white font-black text-sm uppercase tracking-wider cursor-pointer">
@@ -3858,15 +3859,6 @@ document.getElementById('btn-ranked-back-home').addEventListener('click', () => 
     screenStart.classList.remove('hidden');
 });
 
-document.getElementById('btn-create-room').addEventListener('click', createSoloRoom);
-document.getElementById('btn-join-room').addEventListener('click', joinSoloRoom);
-document.getElementById('btn-copy-room').addEventListener('click', () => {
-    if (!currentRoomCode) return;
-    navigator.clipboard?.writeText(currentRoomCode);
-    document.getElementById('btn-copy-room').textContent = '✅ Đã chép';
-    setTimeout(() => { document.getElementById('btn-copy-room').textContent = '📋 Sao chép'; }, 1500);
-});
-
 // --- ĐIỀU KHIỂN CHUỖI MÀN HÌNH MỞ ĐẦU (2 KHUNG, MỖI KHUNG 60 GIÂY) ---
 let splashCurrentFrame = 1;
 let splashSecondsLeft = 60;
@@ -4017,6 +4009,33 @@ document.getElementById('btn-replay-all').addEventListener('click', () => {
     screenStart.classList.remove('hidden');
 });
 
+// Xuất giao tiếp sang PeerJS Solo
+window.gameAudio = audio;
+window.rollDiceSequence = rollDiceSequence;
+window.startSoloMatch = startSoloMatch;
+window.updateSoloHUD = updateSoloHUD;
+window.finishSoloMatch = finishSoloMatch;
+window.sanitizeChatText = sanitizeChatText;
+window.appendChatLog = appendChatLog;
+window.triggerSocialVisual = triggerSocialVisual;
+window.showFilterWarning = showFilterWarning;
+window.getGameState = () => gameState;
+window.getGameDimensions = () => ({ width, height });
+window.getBalls = () => balls;
+window.getPlayerScore = () => levelScore;
+window.getPlayerRatioX = () => Math.max(0.1, Math.min(0.9, player.x / width));
+window.setSoloMeta = (meta) => {
+    if (meta.mode !== undefined) activeMode = meta.mode;
+    if (meta.rule !== undefined) activeSoloRule = meta.rule;
+    if (meta.roomCode !== undefined) currentRoomCode = meta.roomCode;
+    if (meta.isHost !== undefined) isRoomHost = meta.isHost;
+    if (meta.isBot !== undefined) isSoloVsBot = meta.isBot;
+    if (meta.round !== undefined) currentMatchRound = meta.round;
+    if (meta.oppName !== undefined) soloOpponentName = meta.oppName;
+    if (meta.oppScore !== undefined) soloOpponentScore = meta.oppScore;
+    if (meta.oppXRatio !== undefined) soloOpponentXRatio = meta.oppXRatio;
+};
+
 window.onload = function () {
     initCloudServices();
     renderAllBallSwatches();
@@ -4029,15 +4048,17 @@ window.onload = function () {
     startSplashSequence();
 };
 </script>
-    <script>
+
+<!-- HỆ THỐNG SOLO 2 NGƯỜI THẬT QUA PEERJS -->
+<script>
 (() => {
     const PEER_PREFIX = 'pb-tinhban-room-';
     let peerInstance = null;
     let peerConn = null;
     let currentRoomCode = '';
-    let isRoomHost = false;
-    let selectedSoloRule = window.selectedSoloRule || 'TIME_60S';
-    let activeSoloRule = window.activeSoloRule || 'TIME_60S';
+    let selectedSoloRule = 'TIME_60S';
+    let activeSoloRule = 'TIME_60S';
+    let syncIntervalId = null;
 
     function showSoloError(msg) {
         const errEl = document.getElementById('solo-error-msg');
@@ -4060,23 +4081,9 @@ window.onload = function () {
         errEl.classList.remove('hidden');
     }
 
-    function switchLobbyMode(mode) {
-        const panelCampaign = document.getElementById('panel-campaign');
-        const panelSolo = document.getElementById('panel-solo');
-        const panelRanked = document.getElementById('panel-ranked');
-
-        if (panelCampaign) panelCampaign.classList.toggle('hidden', mode !== 'CAMPAIGN');
-        if (panelSolo) panelSolo.classList.toggle('hidden', mode !== 'SOLO');
-        if (panelRanked) panelRanked.classList.toggle('hidden', mode !== 'RANKED');
-
-        window.activeMode = mode;
-    }
-
     function selectSoloRule(rule) {
         selectedSoloRule = rule;
-        window.selectedSoloRule = rule;
-        if (window.audio?.init) window.audio.init();
-        if (window.audio?.playPop) window.audio.playPop(1.15);
+        if (window.gameAudio) { window.gameAudio.init(); window.gameAudio.playPop(1.15); }
 
         const btnTime = document.getElementById('btn-rule-time');
         const btn88 = document.getElementById('btn-rule-score88');
@@ -4084,18 +4091,19 @@ window.onload = function () {
 
         if (rule === 'TIME_60S') {
             btnTime.className = 'p-2 rounded-xl border-2 border-amber-400 bg-amber-400/20 text-left transition cursor-pointer';
-            btnTime.querySelector('div')?.classList.replace('text-sky-300', 'text-amber-300');
+            btnTime.querySelector('div:first-child').className = 'text-xs font-black text-amber-300';
             btn88.className = 'p-2 rounded-xl border border-white/15 bg-slate-900/75 hover:bg-slate-900 text-left transition cursor-pointer';
-            btn88.querySelector('div')?.classList.replace('text-amber-300', 'text-sky-300');
+            btn88.querySelector('div:first-child').className = 'text-xs font-black text-sky-300';
         } else {
             btn88.className = 'p-2 rounded-xl border-2 border-amber-400 bg-amber-400/20 text-left transition cursor-pointer';
-            btn88.querySelector('div')?.classList.replace('text-sky-300', 'text-amber-300');
+            btn88.querySelector('div:first-child').className = 'text-xs font-black text-amber-300';
             btnTime.className = 'p-2 rounded-xl border border-white/15 bg-slate-900/75 hover:bg-slate-900 text-left transition cursor-pointer';
-            btnTime.querySelector('div')?.classList.replace('text-amber-300', 'text-sky-300');
+            btnTime.querySelector('div:first-child').className = 'text-xs font-black text-sky-300';
         }
     }
 
     function cleanupPeerConnection() {
+        if (syncIntervalId) { clearInterval(syncIntervalId); syncIntervalId = null; }
         if (peerConn) {
             try { peerConn.close(); } catch (_) {}
             peerConn = null;
@@ -4106,103 +4114,140 @@ window.onload = function () {
             peerInstance = null;
         }
     }
+    window.cleanupSoloPeer = cleanupPeerConnection;
 
     function getPlayerDisplayName() {
-        const inputName = document.getElementById('input-player-name');
-        const val = inputName?.value?.trim();
-        return val || (typeof window.getPlayerName === 'function' ? window.getPlayerName() : 'Tay Vợt Cừ Khôi');
+        const val = document.getElementById('input-player-name')?.value?.trim();
+        return val || 'Tay Vợt Cừ Khôi';
+    }
+
+    function startRealtimePaddleSync() {
+        if (syncIntervalId) clearInterval(syncIntervalId);
+        syncIntervalId = setInterval(() => {
+            if (!peerConn || !peerConn.open) return;
+            if (typeof window.getGameState === 'function' && window.getGameState() === 'PLAYING') {
+                peerConn.send({
+                    type: 'PADDLE_STATE',
+                    score: typeof window.getPlayerScore === 'function' ? window.getPlayerScore() : 0,
+                    xRatio: typeof window.getPlayerRatioX === 'function' ? window.getPlayerRatioX() : 0.5
+                });
+            }
+        }, 90);
     }
 
     function bindPeerDataChannel(conn) {
         peerConn = conn;
         window.peerConn = conn;
+        startRealtimePaddleSync();
 
         conn.on('data', (msg) => {
             if (!msg || typeof msg !== 'object') return;
 
             if (msg.type === 'GUEST_JOINED') {
-                window.soloOpponentName = msg.name || 'Chiến Hữu';
-                window.soloOpponentScore = 0;
+                const oppName = msg.name || 'Chiến Hữu';
                 const d1 = Math.floor(Math.random() * 6) + 1;
                 let d2 = Math.floor(Math.random() * 6) + 1;
                 if (d1 === d2) d2 = d1 === 6 ? 5 : d1 + 1;
+
+                window.setSoloMeta?.({
+                    mode: 'SOLO',
+                    rule: activeSoloRule,
+                    roomCode: currentRoomCode,
+                    isHost: true,
+                    isBot: false,
+                    round: 1,
+                    oppName,
+                    oppScore: 0
+                });
 
                 conn.send({
                     type: 'START_MATCH',
                     hostName: getPlayerDisplayName(),
                     soloRule: activeSoloRule,
-                    round: window.currentMatchRound || 1,
+                    round: 1,
                     hostDice: d1,
                     guestDice: d2
                 });
 
                 document.getElementById('screen-start')?.classList.add('hidden');
-                if (typeof window.rollDiceSequence === 'function' && typeof window.startSoloMatch === 'function') {
-                    window.rollDiceSequence(getPlayerDisplayName(), window.soloOpponentName, { myRoll: d1, oppRoll: d2 }, (iServeFirst) => {
-                        window.startSoloMatch(iServeFirst);
-                    });
-                }
+                window.rollDiceSequence?.(getPlayerDisplayName(), oppName, { myRoll: d1, oppRoll: d2 }, (iServeFirst) => {
+                    window.startSoloMatch?.(iServeFirst);
+                });
             } else if (msg.type === 'START_MATCH') {
-                window.soloOpponentName = msg.hostName || 'Chủ Phòng';
+                const oppName = msg.hostName || 'Chủ Phòng';
                 activeSoloRule = msg.soloRule || 'TIME_60S';
-                window.activeSoloRule = activeSoloRule;
-                window.currentMatchRound = msg.round || 1;
-                window.soloOpponentScore = 0;
+
+                window.setSoloMeta?.({
+                    mode: 'SOLO',
+                    rule: activeSoloRule,
+                    roomCode: currentRoomCode,
+                    isHost: false,
+                    isBot: false,
+                    round: msg.round || 1,
+                    oppName,
+                    oppScore: 0
+                });
 
                 document.getElementById('screen-start')?.classList.add('hidden');
                 document.getElementById('screen-solo-result')?.classList.add('hidden');
-                if (typeof window.rollDiceSequence === 'function' && typeof window.startSoloMatch === 'function') {
-                    window.rollDiceSequence(getPlayerDisplayName(), window.soloOpponentName, { myRoll: msg.guestDice, oppRoll: msg.hostDice }, (iServeFirst) => {
-                        window.startSoloMatch(iServeFirst);
-                    });
-                }
+                window.rollDiceSequence?.(getPlayerDisplayName(), oppName, { myRoll: msg.guestDice, oppRoll: msg.hostDice }, (iServeFirst) => {
+                    window.startSoloMatch?.(iServeFirst);
+                });
             } else if (msg.type === 'PADDLE_STATE') {
-                window.soloOpponentScore = msg.score || 0;
-                if (typeof msg.xRatio === 'number') window.soloOpponentXRatio = msg.xRatio;
-                if (typeof window.updateSoloHUD === 'function') window.updateSoloHUD();
-            } else if (msg.type === 'BALL_HIT' && Array.isArray(window.balls) && window.balls[0]) {
-                const b = window.balls[0];
-                const w = window.width || 400;
-                const h = window.height || 700;
-                b.x = (1 - msg.xRatio) * w;
-                b.y = (1 - msg.yRatio) * h;
-                b.vx = -msg.vxRatio * w;
-                b.vy = -msg.vyRatio * h;
-                b.trail = [];
-                if (window.audio?.playPop) window.audio.playPop(0.88);
+                window.setSoloMeta?.({
+                    oppScore: msg.score || 0,
+                    oppXRatio: typeof msg.xRatio === 'number' ? msg.xRatio : 0.5
+                });
+                window.updateSoloHUD?.();
+                if (activeSoloRule === 'SCORE_88' && (msg.score || 0) >= 88) {
+                    window.finishSoloMatch?.();
+                }
+            } else if (msg.type === 'BALL_HIT') {
+                const balls = window.getBalls?.();
+                const dims = window.getGameDimensions?.();
+                if (Array.isArray(balls) && balls[0] && dims) {
+                    const b = balls[0];
+                    b.x = (1 - msg.xRatio) * dims.width;
+                    b.y = (1 - msg.yRatio) * dims.height;
+                    b.vx = -msg.vxRatio * dims.width;
+                    b.vy = -msg.vyRatio * dims.height;
+                    b.trail = [];
+                    window.gameAudio?.playPop(0.88);
+                }
             } else if (msg.type === 'SOCIAL') {
-                const cleanMsg = typeof window.sanitizeChatText === 'function' ? window.sanitizeChatText(msg.text) : String(msg.text || '');
-                if (typeof window.appendChatLog === 'function') window.appendChatLog(msg.senderName || window.soloOpponentName || 'Bạn', cleanMsg, false);
-                if (typeof window.triggerSocialVisual === 'function') window.triggerSocialVisual(false, msg.kind, cleanMsg);
+                const cleanMsg = window.sanitizeChatText ? window.sanitizeChatText(msg.text) : String(msg.text || '');
+                window.appendChatLog?.(msg.senderName || 'Chiến Hữu', cleanMsg, false);
+                window.triggerSocialVisual?.(false, msg.kind, cleanMsg);
+            } else if (msg.type === 'REMATCH_READY') {
+                window._oppRematchReady = true;
+                const statusText = document.getElementById('rematch-status-text');
+                if (statusText) {
+                    statusText.textContent = '🔥 Đối thủ đã sẵn sàng Tái Đấu! Bấm Tái Đấu Ngay để bắt đầu!';
+                    statusText.classList.remove('hidden');
+                }
             }
         });
 
         conn.on('close', () => {
-            if (window.gameState === 'PLAYING' && !window.isSoloVsBot && typeof window.showFilterWarning === 'function') {
-                window.showFilterWarning(`${window.soloOpponentName || 'Đối thủ'} đã rời khỏi phòng!`);
+            if (window.getGameState?.() === 'PLAYING') {
+                window.showFilterWarning?.('Đối thủ đã rời khỏi phòng!');
             }
         });
     }
 
     function createSoloRoom() {
         showSoloError('');
-        if (window.audio?.init) window.audio.init();
-        if (window.audio?.playPop) window.audio.playPop(1.2);
+        if (window.gameAudio) { window.gameAudio.init(); window.gameAudio.playPop(1.2); }
 
         if (typeof Peer === 'undefined') {
-            showSoloError('Chưa tải được thư viện PeerJS. Kiểm tra lại kết nối mạng hoặc thẻ <script> PeerJS trong <head>.');
+            showSoloError('Chưa tải được thư viện PeerJS. Vui lòng tải lại trang (Ctrl + F5).');
             return;
         }
 
         cleanupPeerConnection();
         const code = String(Math.floor(10000 + Math.random() * 90000));
         currentRoomCode = code;
-        window.currentRoomCode = code;
-        isRoomHost = true;
-        window.isRoomHost = true;
-        window.isSoloVsBot = false;
         activeSoloRule = selectedSoloRule;
-        window.activeSoloRule = activeSoloRule;
 
         const box = document.getElementById('created-room-box');
         const codeEl = document.getElementById('display-room-code');
@@ -4211,9 +4256,7 @@ window.onload = function () {
 
         if (box) box.classList.remove('hidden');
         if (codeEl) codeEl.textContent = code;
-        if (badgeEl) {
-            badgeEl.textContent = activeSoloRule === 'TIME_60S' ? 'Luật: Đua 1 Phút' : 'Luật: Chạm 88 Điểm';
-        }
+        if (badgeEl) badgeEl.textContent = activeSoloRule === 'TIME_60S' ? 'Luật: Đua 1 Phút' : 'Luật: Chạm 88 Điểm';
         if (waitEl) waitEl.textContent = '⏳ Đang mở kênh phòng trực tuyến...';
 
         peerInstance = new Peer(PEER_PREFIX + code);
@@ -4232,28 +4275,20 @@ window.onload = function () {
 
     function joinSoloRoom() {
         showSoloError('');
-        if (window.audio?.init) window.audio.init();
+        if (window.gameAudio) window.gameAudio.init();
 
-        const inputEl = document.getElementById('input-join-code');
-        const code = (inputEl?.value || '').trim();
-
+        const code = (document.getElementById('input-join-code')?.value || '').trim();
         if (!code || code.length < 4) {
-            showSoloError('Vui lòng nhập mã phòng bạn bè gửi!');
+            showSoloError('Vui lòng nhập đúng mã phòng 5 số bạn bè gửi!');
             return;
         }
-
         if (typeof Peer === 'undefined') {
-            showSoloError('Chưa tải được thư viện PeerJS. Kiểm tra lại kết nối mạng.');
+            showSoloError('Chưa tải được thư viện PeerJS. Vui lòng tải lại trang.');
             return;
         }
 
         cleanupPeerConnection();
         currentRoomCode = code;
-        window.currentRoomCode = code;
-        isRoomHost = false;
-        window.isRoomHost = false;
-        window.isSoloVsBot = false;
-
         showSoloInfo(`⏳ Đang kết nối tới phòng #${code}...`);
 
         peerInstance = new Peer();
@@ -4266,49 +4301,44 @@ window.onload = function () {
             });
         });
         peerInstance.on('error', () => {
-            showSoloError(`Không tìm thấy phòng #${code}. Kiểm tra lại mã hoặc thử lại sau giây lát.`);
+            showSoloError(`Không tìm thấy phòng #${code}. Kiểm tra lại mã hoặc bảo chủ phòng tạo lại!`);
         });
     }
 
-    function bindSoloUIEvents() {
-        document.getElementById('btn-rule-time')?.addEventListener('click', () => selectSoloRule('TIME_60S'));
-        document.getElementById('btn-rule-score88')?.addEventListener('click', () => selectSoloRule('SCORE_88'));
-        document.getElementById('btn-create-room')?.addEventListener('click', createSoloRoom);
-        document.getElementById('btn-join-room')?.addEventListener('click', joinSoloRoom);
+    document.getElementById('btn-rule-time')?.addEventListener('click', () => selectSoloRule('TIME_60S'));
+    document.getElementById('btn-rule-score88')?.addEventListener('click', () => selectSoloRule('SCORE_88'));
+    document.getElementById('btn-create-room')?.addEventListener('click', createSoloRoom);
+    document.getElementById('btn-join-room')?.addEventListener('click', joinSoloRoom);
 
-        document.getElementById('btn-copy-room')?.addEventListener('click', () => {
-            if (!currentRoomCode) return;
-            navigator.clipboard?.writeText(currentRoomCode).catch(() => {});
-            showSoloInfo(`📋 Đã sao chép mã phòng ${currentRoomCode}!`);
+    document.getElementById('btn-copy-room')?.addEventListener('click', () => {
+        if (!currentRoomCode) return;
+        navigator.clipboard?.writeText(currentRoomCode).catch(() => {});
+        const copyBtn = document.getElementById('btn-copy-room');
+        if (copyBtn) {
+            copyBtn.textContent = '✅ Đã chép';
+            setTimeout(() => { copyBtn.textContent = '📋 Sao chép'; }, 1500);
+        }
+        showSoloInfo(`📋 Đã sao chép mã phòng ${currentRoomCode}!`);
+    });
+
+    document.getElementById('btn-solo-practice-bot')?.addEventListener('click', () => {
+        if (window.gameAudio) window.gameAudio.init();
+        const botName = `${document.getElementById('input-friend-name')?.value?.trim() || 'Chiến Hữu'} (Máy)`;
+        window.setSoloMeta?.({
+            mode: 'SOLO',
+            rule: selectedSoloRule,
+            roomCode: currentRoomCode || 'BOT99',
+            isHost: true,
+            isBot: true,
+            round: 1,
+            oppName: botName,
+            oppScore: 0
         });
-
-        document.getElementById('btn-solo-practice-bot')?.addEventListener('click', () => {
-            window.isSoloVsBot = true;
-            document.getElementById('screen-start')?.classList.add('hidden');
-            if (typeof window.startSoloMatch === 'function') window.startSoloMatch(true);
+        document.getElementById('screen-start')?.classList.add('hidden');
+        window.rollDiceSequence?.(getPlayerDisplayName(), botName, null, (iServeFirst) => {
+            window.startSoloMatch?.(iServeFirst);
         });
-
-        document.querySelectorAll('button').forEach((btn) => {
-            const txt = (btn.textContent || '').trim().toUpperCase();
-            if (txt.includes('SOLO BẠN')) {
-                btn.addEventListener('click', () => switchLobbyMode('SOLO'));
-            } else if (txt.includes('HÀNH TRÌNH')) {
-                btn.addEventListener('click', () => switchLobbyMode('CAMPAIGN'));
-            } else if (txt.includes('ĐẤU HẠNG')) {
-                btn.addEventListener('click', () => switchLobbyMode('RANKED'));
-            }
-        });
-    }
-
-    window.createSoloRoom = createSoloRoom;
-    window.joinSoloRoom = joinSoloRoom;
-    window.switchLobbyMode = switchLobbyMode;
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bindSoloUIEvents);
-    } else {
-        bindSoloUIEvents();
-    }
+    });
 })();
 </script>
 </body>
