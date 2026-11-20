@@ -1569,7 +1569,7 @@ function subscribeLeaderboard() {
             if (b.highestLevel !== a.highestLevel) return b.highestLevel - a.highestLevel;
             return b.bestScore - a.bestScore;
         });
-        onlineLeaderboardData = list.slice(0, 30);
+        onlineLeaderboardData = list.slice(0, 50);
         renderLeaderboardUI();
     });
 }
@@ -3041,7 +3041,7 @@ function update(dt) {
         let leadBall = balls[0];
         balls.forEach(b => { if (b.vy < 0 && b.y < leadBall.y) leadBall = b; });
         if (leadBall) {
-            const aiSpeed = (280 + lvl.speedMult * 95) * dt;
+           const aiSpeed = (580 + lvl.speedMult * 140) * dt;
             const diff = leadBall.x - enemy.x;
             enemy.x += Math.sign(diff) * Math.min(Math.abs(diff), aiSpeed);
         }
@@ -4339,6 +4339,118 @@ window.onload = function () {
             window.startSoloMatch?.(iServeFirst);
         });
     });
+})();
+</script>
+<script>
+(() => {
+    let campaignLives = 2;
+
+    const scoreBox = document.getElementById('hud-score-box');
+    if (scoreBox && !document.getElementById('hud-lives')) {
+        const rightGroup = scoreBox.querySelector('div:last-child');
+        if (rightGroup) {
+            const livesSpan = document.createElement('span');
+            livesSpan.id = 'hud-lives';
+            livesSpan.className = 'text-xs font-black tracking-wider';
+            livesSpan.textContent = '❤️❤️';
+            rightGroup.prepend(livesSpan);
+        }
+    }
+
+    const wrapper = document.getElementById('game-wrapper');
+    if (wrapper && !document.getElementById('screen-game-over')) {
+        const overDiv = document.createElement('div');
+        overDiv.id = 'screen-game-over';
+        overDiv.className = 'hidden absolute inset-0 z-25 flex flex-col items-center justify-center p-5 text-white bg-slate-950/85 backdrop-blur-md';
+        overDiv.innerHTML = `
+            <div class="glass-panel rounded-3xl p-5 w-full max-w-xs text-center shadow-2xl border border-rose-400/50">
+                <div class="text-4xl mb-2">💔</div>
+                <h2 class="text-xl font-black text-rose-400 mb-1">HẾT MẠNG RỒI!</h2>
+                <p id="gameover-desc" class="text-xs text-sky-200 mb-4">Bạn đã để lọt bóng 2 lần ở màn này. Hãy thử lại từ đầu nhé!</p>
+                <div class="flex flex-col gap-2">
+                    <button id="btn-gameover-retry" class="btn-primary w-full py-3 rounded-2xl font-black text-xs text-white uppercase cursor-pointer">
+                        🔄 Chơi Lại Màn Này
+                    </button>
+                    <button id="btn-gameover-home" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-xs text-sky-200 cursor-pointer">
+                        🗺️ Về Bản Đồ Màn Chơi
+                    </button>
+                </div>
+            </div>
+        `;
+        wrapper.appendChild(overDiv);
+    }
+
+    function updateLivesBadge() {
+        const el = document.getElementById('hud-lives');
+        if (!el) return;
+        el.textContent = campaignLives === 2 ? '❤️❤️' : (campaignLives === 1 ? '❤️🤍' : '🤍🤍');
+    }
+
+    ['btn-start-game', 'btn-next-level', 'btn-replay-level'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', () => {
+            campaignLives = 2;
+            updateLivesBadge();
+            document.getElementById('screen-game-over')?.classList.add('hidden');
+        });
+    });
+
+    document.getElementById('btn-gameover-retry')?.addEventListener('click', () => {
+        document.getElementById('screen-game-over')?.classList.add('hidden');
+        document.getElementById('btn-replay-level')?.click();
+    });
+
+    document.getElementById('btn-gameover-home')?.addEventListener('click', () => {
+        document.getElementById('screen-game-over')?.classList.add('hidden');
+        document.getElementById('btn-clear-home')?.click();
+    });
+
+    // Chạy kiểm tra 60 lần/giây (16ms) để không bao giờ bỏ lỡ khung hình bóng chạm đáy
+    setInterval(() => {
+        const state = window.getGameState?.();
+        const balls = window.getBalls?.();
+        const dims = window.getGameDimensions?.();
+        const hudScoreBox = document.getElementById('hud-score-box');
+        const isCampaign = hudScoreBox && !hudScoreBox.classList.contains('hidden');
+
+        if (state === 'PLAYING' && isCampaign && Array.isArray(balls) && dims) {
+            const mainBall = balls.find(b => !b.isBonus);
+            if (mainBall && mainBall.y - mainBall.radius > dims.height - 6 && !mainBall._lostHandled) {
+                mainBall._lostHandled = true;
+                campaignLives = Math.max(0, campaignLives - 1);
+                updateLivesBadge();
+
+                if (campaignLives <= 0) {
+                    document.getElementById('btn-pause-open')?.click();
+                    document.getElementById('screen-pause')?.classList.add('hidden');
+                    document.getElementById('hud-bar')?.classList.add('hidden');
+                    document.getElementById('progress-container')?.classList.add('hidden');
+                    document.getElementById('bottom-hint')?.classList.add('hidden');
+                    document.getElementById('screen-game-over')?.classList.remove('hidden');
+                }
+                setTimeout(() => { if (mainBall) mainBall._lostHandled = false; }, 500);
+            }
+        }
+
+        const lbScreen = document.getElementById('screen-leaderboard');
+        const lbContainer = document.getElementById('leaderboard-list');
+        if (lbContainer && lbScreen && !lbScreen.classList.contains('hidden')) {
+            const rows = Array.from(lbContainer.children);
+            const myRowIdx = rows.findIndex(r => r.innerHTML.includes('(Bạn)'));
+            const myStageEl = document.getElementById('my-lb-stage');
+
+            if (rows.length > 50) {
+                rows.slice(50).forEach(r => r.remove());
+            }
+            if (myStageEl && !myStageEl.textContent.includes('• Hạng')) {
+                if (myRowIdx !== -1 && myRowIdx < 50) {
+                    myStageEl.textContent += ` • Hạng #${myRowIdx + 1}`;
+                } else {
+                    const rankText = myRowIdx !== -1 ? `#${myRowIdx + 1}` : '#51+';
+                    myStageEl.textContent += ` • Hạng ${rankText} (Ngoài Top 50)`;
+                }
+            }
+        }
+    }, 16);
 })();
 </script>
 </body>
